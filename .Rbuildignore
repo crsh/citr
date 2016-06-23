@@ -1,0 +1,5 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+
+^inst/images/*
+^README.Rmd

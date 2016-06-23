@@ -1,0 +1,4 @@
+Name: Insert citations
+Description: Inserts Markdown citations
+Binding: insert_citation
+Interactive: true
