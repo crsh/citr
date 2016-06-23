@@ -9,7 +9,7 @@ Installation
 Until `citr` is on CRAN you can install it from this GitHub repository:
 
 ``` {r}
-devtools::install("crsh/citr")
+devtools::install_github("crsh/citr")
 ```
 
 How to use citr
