@@ -1,6 +1,8 @@
 citr: RStudio Addin to Insert Markdown Citations
 ================
 
+[![Build status](https://travis-ci.org/crsh/citr.svg?branch=master)](https://travis-ci.org/crsh/citr)
+
 `citr` provides functions and an [RStudio addin](https://rstudio.github.io/rstudioaddins/) to search a BibTeX-file, create, and insert formatted Markdown citations into the current document.
 
 Installation

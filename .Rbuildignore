@@ -3,3 +3,4 @@
 
 ^inst/images/*
 ^README.Rmd
+^.travis.yaml
