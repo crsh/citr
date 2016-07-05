@@ -27,6 +27,9 @@ query_bib <- function(
 paste_references <- function(bib) {
   author_names <- sapply(bib, function(x) {
     author_names <- unlist(x$author$family)
+    if(is.null(author_names)) {
+      author_names <- unlist(x$author$given)
+    }
     n_authors <- length(author_names)
     if(n_authors == 1) {
       author_names

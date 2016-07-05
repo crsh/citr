@@ -66,7 +66,7 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
         )
       } else {
         div(
-          helpText("Bibliography files found in YAML front matter:", code(paste(yaml_bib_file, collapse = ", ")))
+          helpText("Bibliography file(s) found in YAML front matter:", code(paste(yaml_bib_file, collapse = ", ")))
         )
       }
     )
