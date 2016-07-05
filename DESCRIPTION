@@ -13,7 +13,8 @@ Imports:
   bibtex (>= 0.4.0),
   rstudioapi (>= 0.5),
   miniUI (>= 0.1.1),
-  shiny (>= 0.13.2)
+  shiny (>= 0.13.2),
+  yaml (>= 2.1.13)
 Depends:
   R (>= 3.0.0)
 License: MIT + file LICENSE

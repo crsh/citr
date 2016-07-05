@@ -19,13 +19,14 @@ Invoke RStudio addin to insert Markdown citations
 The path to the BibTeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated.
+   
+   If \code{insert_citation} is called while the focus is on a R Markdown document,
+   which includes a YAML front matter with paths to one or more bibliography files,
+   \code{bib_file} is ignored. Instead the file(s) from the YAML front matter are used.
 }
 \examples{
 \dontrun{
  insert_citation(bib_file = "references.bib")
 }
-}
-\seealso{
-\code{\link{insert_citation}}
 }
 
