@@ -26,6 +26,7 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
   # Get bibliography files from YAML front matter if available
   ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
   yaml_found <- FALSE
+  yaml_bib_file <- NULL
   context <- rstudioapi::getActiveDocumentContext()
   yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
   
@@ -59,7 +60,7 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
         )
       ),
       br(),
-      if(!yaml_found || is.null(yaml_params$bibliography)) {
+      if(!yaml_found || is.null(yaml_bib_file)) {
         div(
           textInput("bib_file", "Path to BibTeX file:", value = bib_file, width = 700),
           helpText("YAML front matter missing or no bibliography file(s) specified.")
@@ -101,6 +102,8 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
         names(citation_keys) <- paste_references(bibliography())
         
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")
+      } else {
+        updateSelectInput(session, "selected_key", c(`BibTex file not found` = ""), label = "")
       }
     })
     
