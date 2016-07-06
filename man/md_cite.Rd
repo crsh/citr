@@ -31,6 +31,7 @@ The path to the BibTeX-file can be set in the global options and is set to
 \dontrun{
   md_cite("foo 2016", bib_file = "references.bib")
 }
+
 }
 \seealso{
 \code{\link{insert_citation}}

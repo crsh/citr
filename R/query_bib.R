@@ -12,19 +12,27 @@
 #'
 #' @return Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.
 #' @seealso \code{\link{md_cite}}, \code{\link{insert_citation}}
+#'
+#' @import assertthat
 
 query_bib <- function(
   x
   , bib_file = options("bibliography_path")
 ) {
+  assert_that(is.string(x))
+  bib_file <- unlist(bib_file)
+  assert_that(is.string(bib_file))
+
   bib <- RefManageR::ReadBib(file = bib_file)
   pasted_bib <- paste_references(bib) # Create searchable text strins for references
   entries <- bib[grepl(x, pasted_bib, ignore.case = TRUE)]
-  entries
+  if(length(entries) > 0) entries else NULL
 }
 
 
 paste_references <- function(bib) {
+  assert_that(is(bib, "bibentry"))
+
   author_names <- sapply(bib, function(x) {
     author_names <- unlist(x$author$family)
     if(is.null(author_names)) {
@@ -46,7 +54,11 @@ paste_references <- function(bib) {
 
   year <- sapply(bib, function(x) {
     if(!is.null(x$year)) x$year else {
-      tryCatch(format(as.Date(unlist(x$date)), "%Y"), error = function(e) x$date)
+      if(!is.null(x$date)) {
+        tryCatch(format(as.Date(unlist(x$date)), "%Y"), error = function(e) x$date)
+      } else {
+        "n.d."
+      }
     }
   })
 

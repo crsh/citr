@@ -2,5 +2,6 @@
 
 export(insert_citation)
 export(md_cite)
+import(assertthat)
 import(miniUI)
 import(shiny)

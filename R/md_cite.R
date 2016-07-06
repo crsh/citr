@@ -12,22 +12,33 @@
 #' @return If the bibliography contains exactly one match the formated citation is returned, otherwise
 #'    returns \code{NULL}. \code{md_cite} returns an in-text citation (\code{"@foo2016"}), \code{md_cite}
 #'    returns an in-parenthesis citation (\code{"[@foo2016]"}).
+#'
 #' @seealso \code{\link{insert_citation}}
-#' @export
 #'
 #' @examples
 #' \dontrun{
 #'   md_cite("foo 2016", bib_file = "references.bib")
 #' }
+#'
+#' @import assertthat
+#' @export
 
 md_cite <- function(
   x
   , in_paren = TRUE
   , bib_file = options("bibliography_path")
 ) {
+  assert_that(is.string(x))
+  assert_that(is.flag(in_paren))
+  bib_file <- unlist(bib_file)
+  assert_that(is.string(bib_file))
 
   # Query BibTeX file
   selected_entries <- query_bib(x, bib_file = bib_file)
+  if(length(selected_entries) == 0) {
+    cat("No matching entries found.")
+    return(NULL)
+  }
   selected_keys <- names(selected_entries)
 
   # Print queried references
@@ -48,6 +59,9 @@ md_cite <- function(
 
 
 paste_citation_keys <- function(keys, in_paren = FALSE) {
+  if(!is.null(keys)) assert_that(is.character(keys)) else return(NULL)
+  assert_that(is.flag(in_paren))
+
   if(in_paren) {
     keys <- paste(keys, collapse = "; @")
     paste0("[@", keys, "]")
