@@ -10,7 +10,7 @@ Maintainer: Frederik Aust, <frederik.aust@uni-koeln.de>
 URL: https://github.com/crsh/citr
 BugReports: https://github.com/crsh/citr/issues
 Imports:
-  bibtex (>= 0.4.0),
+  RefManageR (>= 0.10.13),
   rstudioapi (>= 0.5),
   miniUI (>= 0.1.1),
   shiny (>= 0.13.2),

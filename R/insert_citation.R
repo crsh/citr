@@ -78,12 +78,12 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
     bibliography <- reactive({
       if(!yaml_found || is.null(yaml_bib_file)) {
         options(bibliography_path = input$bib_file)
-        tryCatch(bibtex::read.bib(file = input$bib_file), error = function(e) NULL)
+        tryCatch(RefManageR::ReadBib(file = input$bib_file), error = function(e) NULL)
       } else if(yaml_found & !is.null(yaml_bib_file)) {
         if(length(yaml_bib_file) == 1) {
-          tryCatch(bibtex::read.bib(file = yaml_bib_file), error = function(e) NULL)
+          tryCatch(RefManageR::ReadBib(file = yaml_bib_file), error = function(e) NULL)
         } else {
-          bibs <- lapply(yaml_bib_file, function(file) tryCatch(bibtex::read.bib(file), error = function(e) NULL))
+          bibs <- lapply(yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
           
           ## Merge if multiple bib files were imported succesfully
           not_found <- sapply(bibs, is.null)
