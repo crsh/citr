@@ -13,7 +13,7 @@ fields); Regex is supported.}
 \item{bib_file}{Character. Path to BibTeX-file. See details.}
 }
 \value{
-Returns matching entries form bibliography in class \code{\link[RefManageR]{BibEntry}}.
+Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.
 }
 \description{
 Search entries in a bibliography.
