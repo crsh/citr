@@ -43,12 +43,16 @@ paste_references <- function(bib) {
       author_names
     } else if(n_authors == 2) {
       paste(author_names, collapse = " & ")
-    } else if(n_authors > 2) {
+    } else if(n_authors > 2 & n_authors < 6) {
       paste(
         paste(author_names[-n_authors], collapse = ", ")
         , author_names[n_authors]
         , sep = ", & "
       )
+    } else if(n_authors >= 6) {
+      paste(author_names[1], "et al.")
+    } else {
+      ""
     }
   })
 
@@ -64,9 +68,17 @@ paste_references <- function(bib) {
 
   author_names <- gsub("\\}|\\{", "", author_names)
   titles <- gsub("\\}|\\{|\\\\", "", bib$title)
+  titles <- gsub("\\n", " ", titles)
+
+  # if author_names is null replace by title
+  no_authors <- author_names == ""
+  author_names[no_authors] <- titles[no_authors]
+  titles <- paste0(" ", titles, ".")
+  titles[no_authors] <- ""
+
   journals <- gsub("\\}|\\{|\\\\", "", bib$journal)
   journals <- paste0(" ", journals, ".")
   journals[journals == " NULL."] <- ""
 
-  paste0(author_names, " (", year, "). ", titles, ".", journals)
+  paste0(author_names, " (", year, ").", titles, journals)
 }

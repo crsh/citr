@@ -35,23 +35,15 @@ md_cite <- function(
 
   # Query BibTeX file
   selected_entries <- query_bib(x, bib_file = bib_file)
-  if(length(selected_entries) == 0) {
-    cat("No matching entries found.")
-    return(NULL)
-  }
+  if(length(selected_entries) == 0) return(NULL)
   selected_keys <- names(selected_entries)
 
   # Print queried references
   tmp <- lapply(selected_entries, function(y) {
-    reference <- utils::capture.output(print(
-      y
-      , .opts = list(
-        bib.style = "authoryear"
-        , no.print.fields = c("isbn", "issn", "copyright", "url", "urldate", "month", "note", "language")
-      )
-    ))
-    cat(gsub("\\[1\\]", "\t", reference), "\n\n")
+    reference <- citr:::paste_references(y)
+    cat("\t", reference, "\n")
   })
+  cat("\n")
 
   # Return citation keys
   paste_citation_keys(selected_keys, in_paren)
