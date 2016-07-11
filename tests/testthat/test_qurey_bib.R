@@ -7,30 +7,30 @@ test_that("BibTeX and BibLaTeX", {
     , "Stodden (2009). The legal framework for reproducible scientific research: Licensing and copyright. Computing in Science & Engineering."
   )
 
-  bibtex_bib <- citr:::query_bib("2014", "bib_files/zotero_better_bibtex.bib")
-  reference_list <- citr:::paste_references(bibtex_bib)
+  bibtex_bib <- query_bib("2014", "bib_files/zotero_better_bibtex.bib")
+  reference_list <- paste_references(bibtex_bib)
   expect_equal(reference_list, expected_list[1])
 
-  bibtex_bib <- citr:::query_bib("savage", "bib_files/zotero_better_bibtex.bib")
-  reference_list <- citr:::paste_references(bibtex_bib)
+  bibtex_bib <- query_bib("savage", "bib_files/zotero_better_bibtex.bib")
+  reference_list <- paste_references(bibtex_bib)
   expect_equal(reference_list, expected_list[2])
 
-  bibtex_bib <- citr:::query_bib("plos", "bib_files/zotero_better_bibtex.bib")
-  reference_list <- citr:::paste_references(bibtex_bib)
+  bibtex_bib <- query_bib("plos", "bib_files/zotero_better_bibtex.bib")
+  reference_list <- paste_references(bibtex_bib)
   expect_equal(reference_list, expected_list[2])
 
-  expect_null(citr:::query_bib("foo bar", "bib_files/zotero_better_bibtex.bib"))
+  expect_null(query_bib("foo bar", "bib_files/zotero_better_bibtex.bib"))
 })
 
 test_that("Caching", {
   options(citr.bibliography_cache = NULL)
 
-  bibtex_bib <- citr:::query_bib("", bib_file = "bib_files/zotero_better_bibtex.bib", cache = FALSE)
+  bibtex_bib <- query_bib("", bib_file = "bib_files/zotero_better_bibtex.bib", cache = FALSE)
   expect_is(options("citr.bibliography_cache")[[1]], "bibentry")
 
-  bibtex_cached <- citr:::query_bib("", bib_file = "no_valid_path")
+  bibtex_cached <- query_bib("", bib_file = "no_valid_path")
   expect_identical(bibtex_bib, bibtex_cached)
 
-  bibtex_bib <- citr:::query_bib("", bib_file = "bib_files/problematic_entries.bib", cache = FALSE)
+  bibtex_bib <- query_bib("", bib_file = "bib_files/problematic_entries.bib", cache = FALSE)
   expect_false(identical(bibtex_bib, bibtex_cached))
 })

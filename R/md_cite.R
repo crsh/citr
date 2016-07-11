@@ -38,7 +38,7 @@ md_cite <- function(
 
   # Print queried references
   tmp <- lapply(selected_entries, function(y) {
-    reference <- citr:::paste_references(y)
+    reference <- paste_references(y)
     cat("\t", reference, "\n")
   })
   cat("\n")

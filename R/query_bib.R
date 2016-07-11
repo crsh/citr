@@ -5,7 +5,7 @@
 #' @param x Character. Search terms used to filter bibliography (by author, year, title, and journal
 #'    fields); Regex is supported.
 #' @param bib_file Character. Path to BibTeX-file. See details.
-#' @param cache. Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
+#' @param cache Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
 #'    is re-imported on every function call.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
@@ -42,7 +42,7 @@ query_bib <- function(
 
 
 paste_references <- function(bib) {
-  assert_that(is(bib, "bibentry"))
+  assert_that(methods::is(bib, "bibentry"))
 
   author_names <- sapply(bib, function(x) {
     author_names <- unlist(x$author$family)

@@ -12,7 +12,7 @@ fields); Regex is supported.}
 
 \item{bib_file}{Character. Path to BibTeX-file. See details.}
 
-\item{cache.}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
+\item{cache}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
 is re-imported on every function call.}
 }
 \value{
