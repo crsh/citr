@@ -4,7 +4,7 @@
 \alias{insert_citation}
 \title{Invoke RStudio addin to insert Markdown citations}
 \usage{
-insert_citation(bib_file = options("bibliography_path"))
+insert_citation(bib_file = options("citr.bibliography_path"))
 }
 \arguments{
 \item{bib_file}{Character. Path to BibTeX-file. See details.}
@@ -23,6 +23,11 @@ The path to the BibTeX-file can be set in the global options and is set to
    If \code{insert_citation} is called while the focus is on a R Markdown document,
    which includes a YAML front matter with paths to one or more bibliography files,
    \code{bib_file} is ignored. Instead the file(s) from the YAML front matter are used.
+
+   The addin caches bibliographies to avoid unnecessary hard drive access. If
+   the specified bibliography path or the file paths in the YAML header change the files
+   are reloaded. To manually reload a bibliography at an unchanged location click the
+   action link.
 }
 \examples{
 \dontrun{

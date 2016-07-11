@@ -4,7 +4,8 @@
 \alias{md_cite}
 \title{Insert citation in Markdown format}
 \usage{
-md_cite(x, in_paren = TRUE, bib_file = options("bibliography_path"))
+md_cite(x, in_paren = TRUE, bib_file = options("citr.bibliography_path"),
+  cache = TRUE)
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal

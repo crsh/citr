@@ -5,6 +5,8 @@
 #' @param x Character. Search terms used to filter bibliography (by author, year, title, and journal
 #'    fields); Regex is supported.
 #' @param bib_file Character. Path to BibTeX-file. See details.
+#' @param cache. Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
+#'    is re-imported on every function call.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
@@ -17,13 +19,22 @@
 
 query_bib <- function(
   x
-  , bib_file = options("bibliography_path")
+  , bib_file = options("citr.bibliography_path")
+  , cache = TRUE
 ) {
   assert_that(is.string(x))
   bib_file <- unlist(bib_file)
   assert_that(is.string(bib_file))
+  assert_that(is.flag(cache))
 
-  bib <- RefManageR::ReadBib(file = bib_file)
+  # Use cached bibliography, if available
+  if(is.null(options("citr.bibliography_cache")[[1]]) || !cache) {
+    bib <- RefManageR::ReadBib(file = bib_file)
+    options(citr.bibliography_cache = bib)
+  } else {
+    bib <- options("citr.bibliography_cache")[[1]]
+  }
+
   pasted_bib <- paste_references(bib) # Create searchable text strins for references
   entries <- bib[grepl(x, pasted_bib, ignore.case = TRUE)]
   if(length(entries) > 0) entries else NULL

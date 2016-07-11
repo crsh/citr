@@ -4,13 +4,16 @@
 \alias{query_bib}
 \title{Query bibliography}
 \usage{
-query_bib(x, bib_file = options("bibliography_path"))
+query_bib(x, bib_file = options("citr.bibliography_path"), cache = TRUE)
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
 fields); Regex is supported.}
 
 \item{bib_file}{Character. Path to BibTeX-file. See details.}
+
+\item{cache.}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
+is re-imported on every function call.}
 }
 \value{
 Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.

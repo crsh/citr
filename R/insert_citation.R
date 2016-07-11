@@ -10,6 +10,11 @@
 #'    which includes a YAML front matter with paths to one or more bibliography files,
 #'    \code{bib_file} is ignored. Instead the file(s) from the YAML front matter are used.
 #'
+#'    The addin caches bibliographies to avoid unnecessary hard drive access. If
+#'    the specified bibliography path or the file paths in the YAML header change the files
+#'    are reloaded. To manually reload a bibliography at an unchanged location click the
+#'    action link.
+#'
 #' @return Inserts selected Markdown citation(s) at currenct location.
 #'
 #' @examples
@@ -22,7 +27,7 @@
 #' @import assertthat
 #' @export
 
-insert_citation <- function(bib_file = options("bibliography_path")) {
+insert_citation <- function(bib_file = options("citr.bibliography_path")) {
   bib_file <- unlist(bib_file)
   assert_that(is.string(bib_file))
 
@@ -40,6 +45,12 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
 
     yaml_found <- TRUE
     yaml_bib_file <- yaml_params$bibliography
+
+    # Reload if new bibliography paths are used
+    if(!isTRUE(all.equal(yaml_bib_file, options("citr.bibliography_path")[[1]]))) {
+      options(citr.bibliography_path = yaml_bib_file)
+      options(citr.bibliography_cache = NULL)
+    }
   }
 
   ui <- miniPage(
@@ -66,11 +77,18 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
       if(!yaml_found || is.null(yaml_bib_file)) {
         div(
           textInput("bib_file", "Path to BibTeX file:", value = bib_file, width = 700),
-          helpText("YAML front matter missing or no bibliography file(s) specified.")
+          helpText(
+            "YAML front matter missing or no bibliography file(s) specified."
+            , actionLink("discard_cache", "Reload bibliography")
+          )
         )
       } else {
         div(
-          helpText("Bibliography file(s) found in YAML front matter:", code(paste(yaml_bib_file, collapse = ", ")))
+          helpText(
+            "Bibliography file(s) found in YAML front matter:"
+            , code(paste(yaml_bib_file, collapse = ", "))
+          ),
+          actionLink("discard_cache", "Reload bibliography file(s)")
         )
       }
     )
@@ -78,23 +96,57 @@ insert_citation <- function(bib_file = options("bibliography_path")) {
 
   server <- function(input, output, session) {
 
+    # Discard cache reactive
+    reactive_variables <- reactiveValues(reload_bib = "init") # Set initial value
+    observeEvent(input$discard_cache, {
+      options(citr.bibliography_cache = NULL)
+      reactive_variables$reload_bib <- paste0(sample(letters, 100, replace = TRUE), collapse = "") # Do stuff to trigger reload_bib reactive
+    })
+    reload_bib <- reactive({reactive_variables$reload_bib})
+
     # Load bibliography
     bibliography <- reactive({
-      if(!yaml_found || is.null(yaml_bib_file)) {
-        options(bibliography_path = input$bib_file)
-        tryCatch(RefManageR::ReadBib(file = input$bib_file), error = function(e) NULL)
-      } else if(yaml_found & !is.null(yaml_bib_file)) {
-        if(length(yaml_bib_file) == 1) {
-          tryCatch(RefManageR::ReadBib(file = yaml_bib_file), error = function(e) NULL)
-        } else {
-          bibs <- lapply(yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
+      trigger <- reload_bib() # Triggers reactive when event link is clicked
 
-          ## Merge if multiple bib files were imported succesfully
-          not_found <- sapply(bibs, is.null)
-          if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
-          do.call(c, bibs[!not_found])
-        }
+      # cat(input$bib_file)
+      # cat(options("citr.bibliography_path")[[1]])
+      if(!is.null(input$bib_file) && !isTRUE(all.equal(input$bib_file, options("citr.bibliography_path")[[1]]))) {
+        # cat("Discarding cache...\n")
+        options(citr.bibliography_path = input$bib_file)
+        options(citr.bibliography_cache = NULL)
       }
+
+      # Use cached bibliography, if available
+      if(
+        is.null(options("citr.bibliography_cache")[[1]]) ||
+        (yaml_found & !is.null(yaml_bib_file) & isTRUE(all.equal(yaml_bib_file, options("citr.bibliography_path")[[1]])))
+      ) {
+        # cat("Reloading ...\n")
+        if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
+
+          current_bib <- tryCatch(RefManageR::ReadBib(file = input$bib_file), error = function(e) NULL)
+        } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
+
+          if(length(yaml_bib_file) == 1) {
+            current_bib <- tryCatch(RefManageR::ReadBib(file = yaml_bib_file), error = function(e) NULL)
+          } else {
+            bibs <- lapply(yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
+
+            ## Merge if multiple bib files were imported succesfully
+            not_found <- sapply(bibs, is.null)
+            if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
+            current_bib <- do.call(c, bibs[!not_found])
+          }
+          options(citr.bibliography_path = yaml_bib_file)
+        }
+
+        ## Cache bibliography
+        options(citr.bibliography_cache = current_bib)
+      } else {
+        current_bib <- options("citr.bibliography_cache")[[1]]
+      }
+
+      current_bib
     })
 
     ## Update items in selection list

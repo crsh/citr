@@ -26,15 +26,13 @@
 md_cite <- function(
   x
   , in_paren = TRUE
-  , bib_file = options("bibliography_path")
+  , bib_file = options("citr.bibliography_path")
+  , cache = TRUE
 ) {
-  assert_that(is.string(x))
   assert_that(is.flag(in_paren))
-  bib_file <- unlist(bib_file)
-  assert_that(is.string(bib_file))
 
   # Query BibTeX file
-  selected_entries <- query_bib(x, bib_file = bib_file)
+  selected_entries <- query_bib(x, bib_file = bib_file, cache = cache)
   if(length(selected_entries) == 0) return(NULL)
   selected_keys <- names(selected_entries)
 

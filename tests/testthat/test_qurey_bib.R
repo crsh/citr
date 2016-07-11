@@ -21,3 +21,16 @@ test_that("BibTeX and BibLaTeX", {
 
   expect_null(citr:::query_bib("foo bar", "bib_files/zotero_better_bibtex.bib"))
 })
+
+test_that("Caching", {
+  options(citr.bibliography_cache = NULL)
+
+  bibtex_bib <- citr:::query_bib("", bib_file = "bib_files/zotero_better_bibtex.bib", cache = FALSE)
+  expect_is(options("citr.bibliography_cache")[[1]], "bibentry")
+
+  bibtex_cached <- citr:::query_bib("", bib_file = "no_valid_path")
+  expect_identical(bibtex_bib, bibtex_cached)
+
+  bibtex_bib <- citr:::query_bib("", bib_file = "bib_files/problematic_entries.bib", cache = FALSE)
+  expect_false(identical(bibtex_bib, bibtex_cached))
+})
