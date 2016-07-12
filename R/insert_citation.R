@@ -122,7 +122,7 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
       # Use cached bibliography, if available
       if(
         is.null(options("citr.bibliography_cache")[[1]]) ||
-        (yaml_found & !is.null(yaml_bib_file) & !isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]])))
+        (yaml_found && !is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]])))
       ) {
         # cat("Reloading ...\n")
         if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
