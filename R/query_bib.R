@@ -45,10 +45,17 @@ paste_references <- function(bib) {
   assert_that(methods::is(bib, "bibentry"))
 
   author_names <- sapply(bib, function(x) {
-    author_names <- unlist(lapply(x$author$family, paste, collapse = " "))
+    author_names <- x$author$family
     if(is.null(author_names)) {
       author_names <- unlist(x$author$given)
     }
+
+    author_names <- if(is.list(author_names)) {
+      unlist(lapply(author_names, paste, collapse = " "))
+    } else {
+      paste(author_names, collapse = " ")
+    }
+
     n_authors <- length(author_names)
     if(n_authors == 1) {
       author_names

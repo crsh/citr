@@ -24,6 +24,7 @@ test_that("Possibly problematic entries", {
     , "Terry M. Therneau & Patricia M. Grambsch (2000). Modeling Survival Data: Extending the Cox Model."
     , "Abstracts from the 2014 Annual Scientific Meeting of the American Psychosomatic Society (2014). Psychosomatic Medicine."
     , "Gast & De Houwer (2013). The influence of extinction and counterconditioning instructions on evaluative conditioning effects. Learning and Motivation."
+    , "De Houwer (2011). Evaluative conditioning: A review of procedure knowledge and mental process theories."
   )
 
   problematic_bib <- query_bib("", "bib_files/problematic_entries.bib", cache = FALSE)
