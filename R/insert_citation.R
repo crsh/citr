@@ -29,7 +29,7 @@
 
 insert_citation <- function(bib_file = options("citr.bibliography_path")) {
   bib_file <- unlist(bib_file)
-  assert_that(is.string(bib_file))
+  assert_that(is.character(bib_file))
 
   # Get bibliography files from YAML front matter if available
   ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
@@ -45,10 +45,13 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
 
     yaml_found <- TRUE
     yaml_bib_file <- yaml_params$bibliography
+    relative_paths <- !grepl("^\\/|~", yaml_bib_file)
+    absolute_yaml_bib_file <- yaml_bib_file
+    absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
 
     # Reload if new bibliography paths are used
-    if(!isTRUE(all.equal(yaml_bib_file, options("citr.bibliography_path")[[1]]))) {
-      options(citr.bibliography_path = yaml_bib_file)
+    if(!isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]]))) {
+      options(citr.bibliography_path = absolute_yaml_bib_file)
       options(citr.bibliography_cache = NULL)
     }
   }
@@ -119,7 +122,7 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
       # Use cached bibliography, if available
       if(
         is.null(options("citr.bibliography_cache")[[1]]) ||
-        (yaml_found & !is.null(yaml_bib_file) & isTRUE(all.equal(yaml_bib_file, options("citr.bibliography_path")[[1]])))
+        (yaml_found & !is.null(yaml_bib_file) & !isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]])))
       ) {
         # cat("Reloading ...\n")
         if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
@@ -128,16 +131,16 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
         } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
 
           if(length(yaml_bib_file) == 1) {
-            current_bib <- tryCatch(RefManageR::ReadBib(file = yaml_bib_file), error = function(e) NULL)
+            current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file), error = function(e) NULL)
           } else {
-            bibs <- lapply(yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
+            bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
 
             ## Merge if multiple bib files were imported succesfully
             not_found <- sapply(bibs, is.null)
             if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
             current_bib <- do.call(c, bibs[!not_found])
           }
-          options(citr.bibliography_path = yaml_bib_file)
+          options(citr.bibliography_path = absolute_yaml_bib_file)
         }
 
         ## Cache bibliography
