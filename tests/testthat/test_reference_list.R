@@ -23,6 +23,7 @@ test_that("Possibly problematic entries", {
     , "Baumer, Cetinkaya-Rundel, Bray, Loi, & Horton (in press). R Markdown: Integrating a reproducible analysis tool into introductory statistics. arXiv preprint arXiv:1402.1894."
     , "Terry M. Therneau & Patricia M. Grambsch (2000). Modeling Survival Data: Extending the Cox Model."
     , "Abstracts from the 2014 Annual Scientific Meeting of the American Psychosomatic Society (2014). Psychosomatic Medicine."
+    , "Gast & De Houwer (2013). The influence of extinction and counterconditioning instructions on evaluative conditioning effects. Learning and Motivation."
   )
 
   problematic_bib <- query_bib("", "bib_files/problematic_entries.bib", cache = FALSE)

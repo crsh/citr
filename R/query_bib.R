@@ -45,7 +45,7 @@ paste_references <- function(bib) {
   assert_that(methods::is(bib, "bibentry"))
 
   author_names <- sapply(bib, function(x) {
-    author_names <- unlist(x$author$family)
+    author_names <- unlist(lapply(x$author$family, paste, collapse = " "))
     if(is.null(author_names)) {
       author_names <- unlist(x$author$given)
     }
