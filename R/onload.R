@@ -1,4 +1,4 @@
-.onLoad <- function(libname, pkgname) {
+.onLoad <- function(libname, pkgname) { # nocov start
   op <- options()
   op_citr <- list(
     citr.bibliography_path = "references.bib"
@@ -8,8 +8,4 @@
   if(any(toset)) options(op_citr[toset])
 
   invisible()
-}
-
-.onUnload <- function(libname, pkgname) {
-  options <- options()[-grep("citr\\.", names(options()))]
-}
+} # nocov end
