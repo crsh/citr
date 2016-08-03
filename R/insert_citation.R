@@ -1,8 +1,8 @@
 #' Invoke RStudio addin to insert Markdown citations
 #'
-#' @param bib_file Character. Path to BibTeX-file. See details.
+#' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #'
-#' @details The path to the BibTeX-file can be set in the global options and is set to
+#' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated.
 #'
@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  insert_citation(bib_file = "references.bib")
+#'  insert_citation()
 #' }
 #'
 #' @import miniUI
@@ -40,18 +40,22 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
   if(length(yaml_delimiters) >= 2 &&
      (yaml_delimiters[2] - yaml_delimiters[1] > 1) &&
      grepl("^---\\s*$", context$contents[yaml_delimiters[1]])) {
-    yaml_params <- yaml::yaml.load(paste(context$contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)], collapse = "\n"))
+    if(context$path == "") {
+      message("\nUnsaved R Markdown document: Cannot locate .bib-file(s); falling back to manual path specification.\n")
+    } else {
+      yaml_params <- yaml::yaml.load(paste(context$contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)], collapse = "\n"))
 
-    yaml_found <- TRUE
-    yaml_bib_file <- yaml_params$bibliography
-    relative_paths <- !grepl("^\\/|~", yaml_bib_file)
-    absolute_yaml_bib_file <- yaml_bib_file
-    absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
+      yaml_found <- TRUE
+      yaml_bib_file <- yaml_params$bibliography
+      relative_paths <- !grepl("^\\/|~", yaml_bib_file)
+      absolute_yaml_bib_file <- yaml_bib_file
+      absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
 
-    # Reload if new bibliography paths are used
-    if(!isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path")))) {
-      options(citr.bibliography_path = absolute_yaml_bib_file)
-      options(citr.bibliography_cache = NULL)
+      # Reload if new bibliography paths are used
+      if(!isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path")))) {
+        options(citr.bibliography_path = absolute_yaml_bib_file)
+        options(citr.bibliography_cache = NULL)
+      }
     }
   }
 
@@ -60,7 +64,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
       stableColumnLayout(
         selectizeInput(
           "selected_key"
-          , choices = c(`BibTex file not found` = "")
+          , choices = c(`.bib-file not found` = "")
           , label = ""
           , width = 700
           , multiple = TRUE
@@ -78,19 +82,17 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
       br(),
       if(!yaml_found || is.null(yaml_bib_file)) {
         div(
-          textInput("bib_file", "Path to BibTeX file:", value = bib_file, width = 700),
+          textInput("bib_file", "Path to .bib-file:", value = bib_file, width = 700),
           helpText(
             "YAML front matter missing or no bibliography file(s) specified."
             , actionLink("discard_cache", "Reload bibliography")
           )
         )
       } else {
-        div(
-          helpText(
-            "Bibliography file(s) found in YAML front matter:"
-            , code(paste(yaml_bib_file, collapse = ", "))
-          ),
-          actionLink("discard_cache", "Reload bibliography file(s)")
+        helpText(
+          "Bibliography file(s) found in YAML front matter:"
+          , code(paste(yaml_bib_file, collapse = ", "))
+          , actionLink("discard_cache", "Reload")
         )
       }
     )
@@ -157,7 +159,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
 
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")
       } else {
-        updateSelectInput(session, "selected_key", c(`BibTeX file not found` = ""), label = "")
+        updateSelectInput(session, "selected_key", c(`.bib-file not found` = ""), label = "")
       }
     })
 
