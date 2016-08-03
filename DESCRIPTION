@@ -1,10 +1,10 @@
 Package: citr
 Type: Package
 Title: RStudio Addin to Insert Markdown Citations
-Description: The package provides functions and an RStudio addin to search a BibTeX-file, create, and
+Description: The package provides functions and an RStudio addin to search a BibTeX-file to create and
   insert formatted Markdown citations into the current document.
-Version: 0.1.0.9018
-Date: 2016-2-15
+Version: 0.1.0.9021
+Date: 2016-8-03
 Authors@R: person("Frederik", "Aust", email = "frederik@studio-aust.com", role = c("aut", "cre"))
 Maintainer: Frederik Aust, <frederik.aust@uni-koeln.de>
 URL: https://github.com/crsh/citr

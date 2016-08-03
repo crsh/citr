@@ -5,7 +5,7 @@
 #' @inheritParams query_bib
 #' @param in_paren Logical. Determines if citation is in parentheses.
 #'
-#' @details The path to the BibTeX-file can be set in the global options and is set to
+#' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated.
 #'

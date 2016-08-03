@@ -13,7 +13,7 @@ fields); Regex is supported.}
 
 \item{in_paren}{Logical. Determines if citation is in parentheses.}
 
-\item{bib_file}{Character. Path to BibTeX-file. See details.}
+\item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
 \item{cache}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
 is re-imported on every function call.}
@@ -27,7 +27,7 @@ If the bibliography contains exactly one match the formated citation is returned
 Look up entries in bibliography and insert citation in Markdown format if exactly one match is returned.
 }
 \details{
-The path to the BibTeX-file can be set in the global options and is set to
+The path to the Bib(La)TeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated.
 }

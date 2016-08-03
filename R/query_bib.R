@@ -4,7 +4,7 @@
 #'
 #' @param x Character. Search terms used to filter bibliography (by author, year, title, and journal
 #'    fields); Regex is supported.
-#' @param bib_file Character. Path to BibTeX-file. See details.
+#' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #' @param cache Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
 #'    is re-imported on every function call.
 #'

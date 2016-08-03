@@ -4,10 +4,10 @@
 \alias{insert_citation}
 \title{Invoke RStudio addin to insert Markdown citations}
 \usage{
-insert_citation(bib_file = options("citr.bibliography_path"))
+insert_citation(bib_file = getOption("citr.bibliography_path"))
 }
 \arguments{
-\item{bib_file}{Character. Path to BibTeX-file. See details.}
+\item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 }
 \value{
 Inserts selected Markdown citation(s) at currenct location.
@@ -16,7 +16,7 @@ Inserts selected Markdown citation(s) at currenct location.
 Invoke RStudio addin to insert Markdown citations
 }
 \details{
-The path to the BibTeX-file can be set in the global options and is set to
+The path to the Bib(La)TeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated.
 
@@ -31,7 +31,7 @@ The path to the BibTeX-file can be set in the global options and is set to
 }
 \examples{
 \dontrun{
- insert_citation(bib_file = "references.bib")
+ insert_citation()
 }
 
 }

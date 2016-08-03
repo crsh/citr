@@ -10,7 +10,7 @@ query_bib(x, bib_file = options("citr.bibliography_path"), cache = TRUE)
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
 fields); Regex is supported.}
 
-\item{bib_file}{Character. Path to BibTeX-file. See details.}
+\item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
 \item{cache}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
 is re-imported on every function call.}
