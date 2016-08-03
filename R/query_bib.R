@@ -52,6 +52,8 @@ paste_references <- function(bib) {
 
     author_names <- if(is.list(author_names)) {
       unlist(lapply(author_names, paste, collapse = " "))
+    } else if(is.null(author_names)) {
+      ""
     } else {
       paste(author_names, collapse = " ")
     }
@@ -69,8 +71,6 @@ paste_references <- function(bib) {
       )
     } else if(n_authors >= 6) {
       paste(author_names[1], "et al.")
-    } else {
-      ""
     }
   })
 
