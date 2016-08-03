@@ -27,8 +27,7 @@
 #' @import assertthat
 #' @export
 
-insert_citation <- function(bib_file = options("citr.bibliography_path")) {
-  bib_file <- unlist(bib_file)
+insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
   assert_that(is.character(bib_file))
 
   # Get bibliography files from YAML front matter if available
@@ -50,7 +49,7 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
     absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
 
     # Reload if new bibliography paths are used
-    if(!isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]]))) {
+    if(!isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path")))) {
       options(citr.bibliography_path = absolute_yaml_bib_file)
       options(citr.bibliography_cache = NULL)
     }
@@ -110,43 +109,40 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
     # Load bibliography
     bibliography <- reactive({
       trigger <- reload_bib() # Triggers reactive when event link is clicked
-
-      # cat(input$bib_file)
-      # cat(options("citr.bibliography_path")[[1]])
-      if(!is.null(input$bib_file) && !isTRUE(all.equal(input$bib_file, options("citr.bibliography_path")[[1]]))) {
-        # cat("Discarding cache...\n")
-        options(citr.bibliography_path = input$bib_file)
+      if(!is.null(input$bib_file) && !isTRUE(all.equal(input$bib_file, getOption("citr.bibliography_path")))) {
         options(citr.bibliography_cache = NULL)
       }
 
       # Use cached bibliography, if available
       if(
-        is.null(options("citr.bibliography_cache")[[1]]) ||
-        (yaml_found && !is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, options("citr.bibliography_path")[[1]])))
+        is.null(getOption("citr.bibliography_cache")) #||
+        # (yaml_found && !is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path"))))
       ) {
-        # cat("Reloading ...\n")
-        if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
+        withProgress({
+          if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
 
-          current_bib <- tryCatch(RefManageR::ReadBib(file = input$bib_file), error = function(e) NULL)
-        } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
+            current_bib <- tryCatch(RefManageR::ReadBib(file = input$bib_file), error = error_handler)
+            options(citr.bibliography_path = input$bib_file)
+          } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
 
-          if(length(yaml_bib_file) == 1) {
-            current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file), error = function(e) NULL)
-          } else {
-            bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = function(e) NULL))
+            if(length(yaml_bib_file) == 1) {
+              current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file), error = error_handler)
+            } else {
+              bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = error_handler))
 
-            ## Merge if multiple bib files were imported succesfully
-            not_found <- sapply(bibs, is.null)
-            if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
-            current_bib <- do.call(c, bibs[!not_found])
+              ## Merge if multiple bib files were imported succesfully
+              not_found <- sapply(bibs, is.null)
+              if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
+              current_bib <- do.call(c, bibs[!not_found])
+            }
+            options(citr.bibliography_path = absolute_yaml_bib_file)
           }
-          options(citr.bibliography_path = absolute_yaml_bib_file)
-        }
+        }, message = "Loading bibliography...")
 
         ## Cache bibliography
         options(citr.bibliography_cache = current_bib)
       } else {
-        current_bib <- options("citr.bibliography_cache")[[1]]
+        current_bib <- getOption("citr.bibliography_cache")
       }
 
       current_bib
@@ -161,7 +157,7 @@ insert_citation <- function(bib_file = options("citr.bibliography_path")) {
 
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")
       } else {
-        updateSelectInput(session, "selected_key", c(`BibTex file not found` = ""), label = "")
+        updateSelectInput(session, "selected_key", c(`BibTeX file not found` = ""), label = "")
       }
     })
 
@@ -194,4 +190,13 @@ stableColumnLayout <- function(...) {
       div(class = class, el)
     })
   )
+}
+
+error_handler <- function(x) {
+  if(x$message != "unable to open file to read") {
+    print(x)
+    cat("\n")
+  }
+
+  NULL
 }
