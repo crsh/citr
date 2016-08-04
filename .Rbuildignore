@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 
 ^inst/images/*
-^README.Rmd
-^.travis.yml
+^README\.Rmd$
+^\.travis\.yml$
 
-^cran-comments.md
+^cran-comments\.md$

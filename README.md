@@ -1,14 +1,20 @@
 citr: RStudio Addin to Insert Markdown Citations
 ================
 
-[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Build status](https://travis-ci.org/crsh/citr.svg?branch=master)](https://travis-ci.org/crsh/citr)
+[![CRAN status](http://www.r-pkg.org/badges/version/citr)](https://cran.r-project.org/web/packages/citr/index.html) [![Download counter](http://cranlogs.r-pkg.org/badges/citr)](https://cran.r-project.org/web/packages/citr/index.html) [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Build status](https://travis-ci.org/crsh/citr.svg?branch=master)](https://travis-ci.org/crsh/citr)
 
 `citr` provides functions and an [RStudio addin](https://rstudio.github.io/rstudioaddins/) to search a BibTeX-file to create and insert formatted Markdown citations into the current document.
 
 Installation
 ------------
 
-Until `citr` is on CRAN you can install it from this GitHub repository:
+You can either use the stable version of `citr` from CRAN,
+
+``` {r}
+install.packages("citr")
+```
+
+or the current development snapshot from this GitHub repository:
 
 ``` {r}
 devtools::install_github("crsh/citr")
@@ -46,4 +52,4 @@ Known problems
 Other RStudio addins
 --------------------
 
-If you are interested in other handy addins take a look at this [list](https://github.com/daattali/addinslist#readme). There you can find other useful addins, such as the [word count addin](https://github.com/benmarwick/wordcountaddin).
+If you are interested in other handy addins take a look at this [list](https://github.com/daattali/addinslist#readme). There you can find other useful addins, such as [rcrossref](https://github.com/ropensci/rcrossref) or [wordcountaddin](https://github.com/benmarwick/wordcountaddin).

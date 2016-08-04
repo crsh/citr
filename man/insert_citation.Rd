@@ -2,7 +2,7 @@
 % Please edit documentation in R/insert_citation.R
 \name{insert_citation}
 \alias{insert_citation}
-\title{Invoke RStudio addin to insert Markdown citations}
+\title{Invoke RStudio add-in to insert Markdown citations}
 \usage{
 insert_citation(bib_file = getOption("citr.bibliography_path"))
 }
@@ -13,11 +13,11 @@ insert_citation(bib_file = getOption("citr.bibliography_path"))
 Inserts selected Markdown citation(s) at currenct location.
 }
 \description{
-Invoke RStudio addin to insert Markdown citations
+Invoke RStudio add-in to insert Markdown citations
 }
 \details{
 The path to the Bib(La)TeX-file can be set in the global options and is set to
-   \code{references.bib} when the package is loaded. Once the path is changed in the
+   \code{./references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated.
 
    If \code{insert_citation} is called while the focus is on a R Markdown document,

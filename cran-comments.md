@@ -5,7 +5,24 @@
 * win-builder (devel and release)
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTEs.
+There were no ERRORs or WARNINGs but 1 NOTE:
+
+> Maintainer: 'Frederik Aust <frederik.aust@uni-koeln.de>'
+
+> New submission
+
+> License components with restrictions and base license permitting such:
+>   MIT + file LICENSE
+> File 'LICENSE':
+>   YEAR: 2016
+>   COPYRIGHT HOLDER: Frederik Aust
+
+> Possibly mis-spelled words in DESCRIPTION:
+>   BibTeX (4:58)
+>   RStudio (3:8, 4:31)
+
+Both spellings are customary.
+
 
 ## Downstream dependencies
 There are no downstream dependencies.

@@ -1,9 +1,9 @@
-#' Invoke RStudio addin to insert Markdown citations
+#' Invoke RStudio add-in to insert Markdown citations
 #'
 #' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #'
 #' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
-#'    \code{references.bib} when the package is loaded. Once the path is changed in the
+#'    \code{./references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated.
 #'
 #'    If \code{insert_citation} is called while the focus is on a R Markdown document,
@@ -82,6 +82,8 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
       br(),
       if(!yaml_found || is.null(yaml_bib_file)) {
         div(
+          # shinyFiles::shinyFilesButton("files", label = "Select .bib-file(s)", title = "Please select one or more .bib-file", multiple = TRUE), # Only prespecified directories allowed
+          # fileInput("upload", label = "Upload", multiple = TRUE, accept = c("application/x-bibtex", "text/plain", ".bib", ".bibtex")), # Wouldn't know how to cache uploaded file
           textInput("bib_file", "Path to .bib-file:", value = bib_file, width = 700),
           helpText(
             "YAML front matter missing or no bibliography file(s) specified."
@@ -100,6 +102,10 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path")) {
 
   server <- function(input, output, session) {
 
+    # shinyFiles::shinyFileChoose(input, "files", root = c(`Working directory`= ".", Home = "~/"), filetypes = "bib", session = session)
+    
+    # input$upload$datapath
+    
     # Discard cache reactive
     reactive_variables <- reactiveValues(reload_bib = "init") # Set initial value
     observeEvent(input$discard_cache, {
