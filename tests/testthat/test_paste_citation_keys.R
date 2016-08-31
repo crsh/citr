@@ -2,7 +2,7 @@ context("Citation keys")
 
 test_that("", {
   expected_list <- "@baumer_markdown_2014, @savage_empirical_2009, and @stodden_legal_2009"
-  bibtex_bib <- query_bib("", "bib_files/zotero_better_bibtex.bib", cache = FALSE)
+  bibtex_bib <- query_bib("", "bib_files/zotero_better_bibtex.bib", cache = FALSE, use_betterbiblatex = FALSE)
   reference_list <- paste_citation_keys(names(bibtex_bib))
   expect_equal(reference_list, expected_list)
 

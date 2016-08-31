@@ -3,6 +3,7 @@
   op_citr <- list(
     citr.bibliography_path = "./references.bib"
     , citr.bibliography_cache = NULL
+    , citr.use_betterbiblatex = TRUE
   )
   toset <- !(names(op_citr) %in% names(op))
   if(any(toset)) options(op_citr[toset])
