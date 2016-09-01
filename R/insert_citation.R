@@ -37,32 +37,60 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
 
   # Get bibliography files from YAML front matter if available
   ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
-  yaml_found <- FALSE
   yaml_bib_file <- NULL
+
   context <- rstudioapi::getActiveDocumentContext()
   yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
 
+  ## Always look up index.Rmd if document is in bookdown directory
+  candidate_parents <- getOption("citr.parent_documents")
+  if(any(file.exists(paste(dirname(context$path), c("_bookdown.yml", "_site.yml"), sep = "/")))) {
+    if(!"index.Rmd" %in% candidate_parents) candidate_parents <- c(candidate_parents, "index.Rmd")
+  }
+
+  parents_path <- paste(dirname(context$path), candidate_parents, sep = "/")
+  parents <- file.exists(parents_path)
+
+  ## Search current document for specified bib files
   if(length(yaml_delimiters) >= 2 &&
      (yaml_delimiters[2] - yaml_delimiters[1] > 1) &&
      grepl("^---\\s*$", context$contents[yaml_delimiters[1]])) {
     if(context$path == "") {
       message("\nUnsaved R Markdown document: Cannot locate Bib(La)TeX file(s); falling back to manual path specification.\n")
     } else {
-      yaml_params <- yaml::yaml.load(paste(context$contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)], collapse = "\n"))
+      yaml_bib_file <- yaml::yaml.load(paste(context$contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography
+    }
 
-      yaml_found <- TRUE
-      yaml_bib_file <- yaml_params$bibliography
-      relative_paths <- !grepl("^\\/|~", yaml_bib_file)
-      absolute_yaml_bib_file <- yaml_bib_file
-      absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
+  ## Search parent documents
+  } else if(any(parents)) {
+    if(sum(parents) > 1) stop("More than one parent document found. See getOption('citr.parent_documents').")
+
+    parent_document <- readLines(parents_path[parents])
+    parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
+
+    if(length(parent_yaml_delimiters) >= 2 &&
+       (parent_yaml_delimiters[2] - parent_yaml_delimiters[1] > 1) &&
+       grepl("^---\\s*$", parent_document[parent_yaml_delimiters[1]])) {
+        yaml_bib_file <- yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography
+    }
+  }
+
+  if(!is.null(yaml_bib_file)) {
+    relative_paths <- !grepl("^\\/|~", yaml_bib_file)
+    absolute_yaml_bib_file <- yaml_bib_file
+    absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
+
+    if(betterbiblatex && use_betterbiblatex) {
       yaml_choices <- absolute_yaml_bib_file
       names(yaml_choices) <- yaml_bib_file
+    }
 
-      # Reload if new bibliography paths are used
-      if(!all(absolute_yaml_bib_file == getOption("citr.bibliography_path")) & (!betterbiblatex | !use_betterbiblatex)) {
-        options(citr.bibliography_path = absolute_yaml_bib_file)
-        options(citr.bibliography_cache = NULL)
-      }
+    bib_message <- paste0("Bibliography file(s) found in YAML front matter", ifelse(exists("parent_document"), paste0(" of '", candidate_parents[parents], "'"), ""), ":")
+
+    # Reload if new bibliography paths are used
+    if(!all(absolute_yaml_bib_file == getOption("citr.bibliography_path")) & (!betterbiblatex | !use_betterbiblatex)) {
+      options(citr.bibliography_path = absolute_yaml_bib_file)
+      options(citr.bibliography_cache = NULL)
     }
   }
 
@@ -93,10 +121,6 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
   )
 
   server <- function(input, output, session) {
-
-    # shinyFiles::shinyFileChoose(input, "files", root = c(`Working directory`= ".", Home = "~/"), filetypes = "bib", session = session)
-
-    # input$upload$datapath
 
     reactive_variables <- reactiveValues(reload_bib = "init", use_betterbiblatex = use_betterbiblatex) # Set initial value
 
@@ -138,10 +162,8 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     })
 
     output$bib_file <- renderUI({
-      if(!yaml_found || is.null(yaml_bib_file)) {
+      if(is.null(yaml_bib_file)) {
         div(
-          # shinyFiles::shinyFilesButton("files", label = "Select .bib-file(s)", title = "Please select one or more .bib-file", multiple = TRUE), # Only prespecified directories allowed
-          # fileInput("upload", label = "Upload", multiple = TRUE, accept = c("application/x-bibtex", "text/plain", ".bib", ".bibtex")), # Wouldn't know how to cache uploaded file
           textInput(
             ifelse(betterbiblatex && reactive_variables$use_betterbiblatex, "update_bib", "read_bib")
             , ifelse(betterbiblatex && reactive_variables$use_betterbiblatex, "Bib(La)Tex file to update", "Bib(La)Tex file to read")
@@ -157,11 +179,11 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
         if(betterbiblatex && reactive_variables$use_betterbiblatex) {
           div(
             selectInput("update_bib", "Bib(La)Tex file to update", choices = yaml_choices),
-            helpText("Bibliography file(s) found in YAML front matter.")
+            helpText(bib_message)
           )
         } else {
           helpText(
-            "Bibliography file(s) found in YAML front matter:"
+            bib_message
             , code(paste(yaml_bib_file, collapse = ", "))
             , actionLink("discard_cache", "Reload file(s)")
           )
@@ -189,7 +211,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
       # Use cached bibliography, if available
       if(
         is.null(getOption("citr.bibliography_cache")) #||
-        # (yaml_found && !is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path"))))
+        # (!is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path"))))
       ) {
         withProgress({
           if(betterbiblatex && reactive_variables$use_betterbiblatex) {
@@ -198,7 +220,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
             current_bib <- load_betterbiblatex_bib()
 
           } else {
-            if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
+            if(is.null(yaml_bib_file)) { # Use specified bibliography
 
               if(!is.null(input$read_bib)) {
                 options(citr.bibliography_path = input$read_bib)
@@ -207,7 +229,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
                 current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path"), check = FALSE), error = error_handler)
               }
 
-            } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
+            } else if(!is.null(yaml_bib_file)) { # Use YAML bibliography, if available
 
               options(citr.bibliography_path = absolute_yaml_bib_file)
 

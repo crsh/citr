@@ -29,9 +29,11 @@ Once `citr` is installed and you have restarted your R session, the addin appear
 
 ![](inst/images/addin_demo.gif)
 
+The addin will automatically look up the Bib(La)TeX-file(s) specified in the YAML front matter. If the document does not contain a YAML front matter the addin will attempt to locate a parent document and look up the Bib(La)TeX-file specified therein. That is, the addin works its automagic even if you edit R Markdown documents that are included as [children](http://yihui.name/knitr/demo/child/) in another R Markdown document. The expected names of a parent document default to `c("index.Rmd", "master.Rmd")`, it thus works with [`bookdown`](https://bookdown.org/) out of the box, but can be customized (e.g., `options(citr.parent_documents = "my_parent.Rmd")`).
+
 ### Using citr without RStudio
 
-The following call searches a BibTeX-file and creates formatted Markdown citations for the results.
+The following call searches a Bib(La)TeX-file and creates formatted Markdown citations for the results.
 
 ``` {r}
 library("citr")
