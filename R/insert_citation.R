@@ -195,16 +195,16 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
           if(betterbiblatex && reactive_variables$use_betterbiblatex) {
 
             if(!is.null(input$update_bib)) options(citr.bibliography_path = input$update_bib)
-            current_bib <- load_zotero_bib()
+            current_bib <- load_betterbiblatex_bib()
 
           } else {
             if(!yaml_found || is.null(yaml_bib_file)) { # Use specified bibliography
 
               if(!is.null(input$read_bib)) {
                 options(citr.bibliography_path = input$read_bib)
-                current_bib <- tryCatch(RefManageR::ReadBib(file = input$read_bib), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = input$read_bib, check = FALSE), error = error_handler)
               } else {
-                current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path")), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path"), check = FALSE), error = error_handler)
               }
 
             } else if(yaml_found & !is.null(yaml_bib_file)) { # Use YAML bibliography, if available
@@ -212,9 +212,9 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
               options(citr.bibliography_path = absolute_yaml_bib_file)
 
               if(length(yaml_bib_file) == 1) {
-                current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file, check = FALSE), error = error_handler)
               } else {
-                bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file), error = error_handler))
+                bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file, check = FALSE), error = error_handler))
 
                 ## Merge if multiple bib files were imported succesfully
                 not_found <- sapply(bibs, is.null)
@@ -255,7 +255,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
       if(betterbiblatex && reactive_variables$use_betterbiblatex) {
         if(file.exists(input$update_bib)) {
 
-          existing_bib <- tryCatch(RefManageR::ReadBib(input$update_bib), error = error_handler)
+          existing_bib <- tryCatch(RefManageR::ReadBib(input$update_bib, check = FALSE), error = error_handler)
           if(length(existing_bib) > 0) {
             new_references <- !input$selected_key %in% names(existing_bib)
           } else {

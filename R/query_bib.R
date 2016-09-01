@@ -40,9 +40,9 @@ query_bib <- function(
   if(is.null(getOption("citr.bibliography_cache")) || !cache) {
 
     if(use_betterbiblatex & betterbiblatex_available()) {
-      bib <- load_zotero_bib()
+      bib <- load_betterbiblatex_bib()
     } else {
-      bib <- RefManageR::ReadBib(file = bib_file)
+      bib <- RefManageR::ReadBib(file = bib_file, check = FALSE)
     }
 
     if(cache) options(citr.bibliography_cache = bib)
@@ -125,7 +125,7 @@ betterbiblatex_available <- function() {
   )
 }
 
-load_zotero_bib <- function() {
+load_betterbiblatex_bib <- function() {
   betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
   zotero_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
   zotero_bib <- strsplit(zotero_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
@@ -137,7 +137,7 @@ load_zotero_bib <- function() {
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
     writeLines(zotero_entries[((i-1) * 100 + 1):min(i * 100, length(zotero_entries))], con = tmp_bib_file)
-    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file))
+    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
     file.remove(tmp_bib_file)
   }
 
