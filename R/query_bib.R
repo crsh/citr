@@ -50,7 +50,7 @@ query_bib <- function(
     bib <- getOption("citr.bibliography_cache")
   }
 
-  pasted_bib <- paste_references(bib) # Create searchable text strins for references
+  pasted_bib <- paste_references(bib) # Create searchable text strings for references
   entries <- bib[grepl(gsub("\\s", ".+", x), pasted_bib, ignore.case = TRUE)]
   if(length(entries) > 0) entries else NULL
 }
@@ -127,13 +127,12 @@ betterbiblatex_available <- function() {
 
 load_betterbiblatex_bib <- function() {
   betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
-  zotero_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
-  zotero_bib <- strsplit(zotero_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
-  zotero_entries <- strsplit(gsub("(@\\w+\\{)", "~\\1", zotero_bib), "~" )[[1]]
+  betterbibtex_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
+  betterbibtex_bib <- strsplit(betterbibtex_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
+  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~\\1", betterbibtex_bib), "~" )[[1]]
 
-  # Create and readmultiple biblatex files because bibtex::read.bib does not work with large files
-  bib <- c()
-  no_batches <- length(zotero_entries) %/% 100 + 1
+  # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
+  no_batches <- length(betterbibtex_entries) %/% 100 + 1
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
     writeLines(zotero_entries[((i-1) * 100 + 1):min(i * 100, length(zotero_entries))], con = tmp_bib_file)

@@ -3,7 +3,7 @@ Type: Package
 Title: RStudio Add-in to Insert Markdown Citations
 Description: Functions and an RStudio add-in that search a BibTeX-file to create and
   insert formatted Markdown citations into the current document.
-Version: 0.1.0.9028
+Version: 0.1.0.9029
 Date: 2016-8-03
 Authors@R: person("Frederik", "Aust", email = "frederik.aust@uni-koeln.de", role = c("aut", "cre"))
 URL: https://github.com/crsh/citr

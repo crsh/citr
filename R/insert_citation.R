@@ -261,11 +261,12 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
       citation_keys <- names(bibliography())
 
       if(length(citation_keys > 0)) {
-        names(citation_keys) <- paste_references(bibliography())
+        current_references <- paste_references(bibliography())
+        names(citation_keys) <- current_references[order(current_references)]
 
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")
       } else {
-        updateSelectInput(session, "selected_key", c(`.bib-file not found` = ""), label = "")
+        updateSelectInput(session, "selected_key", c(`.bib-file(s) not found` = ""), label = "")
       }
     })
 
