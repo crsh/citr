@@ -10,3 +10,5 @@ warnings_are_errors: true
 # Suggested packages needed to run tests
 r_packages:
   - testthat
+
+pandoc: false
