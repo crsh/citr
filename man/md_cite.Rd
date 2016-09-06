@@ -4,8 +4,8 @@
 \alias{md_cite}
 \title{Insert citation in Markdown format}
 \usage{
-md_cite(x, in_paren = TRUE, bib_file = options("citr.bibliography_path"),
-  cache = TRUE)
+md_cite(x, in_paren = TRUE, bib_file = getOption("citr.bibliography_path"),
+  cache = TRUE, use_betterbiblatex = getOption("citr.use_betterbiblatex"))
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
@@ -15,8 +15,12 @@ fields); Regex is supported.}
 
 \item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
-\item{cache}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
-is re-imported on every function call.}
+\item{cache}{Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
+\code{cache = FALSE} bibliography is re-imported on every function call.}
+
+\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
+for Zotero} is installed and Zotero is running.}
 }
 \value{
 If the bibliography contains exactly one match the formated citation is returned, otherwise
@@ -27,9 +31,11 @@ If the bibliography contains exactly one match the formated citation is returned
 Look up entries in bibliography and insert citation in Markdown format if exactly one match is returned.
 }
 \details{
-The path to the Bib(La)TeX-file can be set in the global options and is set to
+The path to the BibTeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
-   RStudio addin, the global option is updated.
+   RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
+   are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+   is then updated to include the inserted reference.
 }
 \examples{
 \dontrun{

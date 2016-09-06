@@ -3,6 +3,7 @@
 
 ^inst/images/*
 ^README\.Rmd$
+^README_files$
 ^\.travis\.yml$
 
 ^cran-comments\.md$

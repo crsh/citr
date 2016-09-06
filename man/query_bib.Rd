@@ -4,7 +4,8 @@
 \alias{query_bib}
 \title{Query bibliography}
 \usage{
-query_bib(x, bib_file = options("citr.bibliography_path"), cache = TRUE)
+query_bib(x, bib_file = getOption("citr.bibliography_path"), cache = TRUE,
+  use_betterbiblatex = getOption("citr.use_betterbiblatex"))
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
@@ -12,8 +13,12 @@ fields); Regex is supported.}
 
 \item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
-\item{cache}{Logical. Cached bibliography is used, if available. If \code{cache = FALSE} bibliography
-is re-imported on every function call.}
+\item{cache}{Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
+\code{cache = FALSE} bibliography is re-imported on every function call.}
+
+\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
+for Zotero} is installed and Zotero is running.}
 }
 \value{
 Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.
@@ -24,7 +29,9 @@ Search entries in a bibliography.
 \details{
 The path to the BibTeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
-   RStudio addin, the global option is updated.
+   RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
+   are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+   is then updated to include the inserted reference.
 }
 \seealso{
 \code{\link{md_cite}}, \code{\link{insert_citation}}

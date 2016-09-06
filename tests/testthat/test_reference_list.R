@@ -7,11 +7,11 @@ test_that("BibTeX and BibLaTeX", {
     , "Stodden (2009). The legal framework for reproducible scientific research: Licensing and copyright. Computing in Science & Engineering."
   )
 
-  bibtex_bib <- query_bib("", "bib_files/zotero_better_bibtex.bib", cache = FALSE)
+  bibtex_bib <- query_bib("", "bib_files/zotero_better_bibtex.bib", cache = FALSE, use_betterbiblatex = FALSE)
   reference_list <- paste_references(bibtex_bib)
   expect_equal(reference_list, expected_list)
 
-  biblatex_bib <- query_bib("", "bib_files/zotero_better_biblatex.bib", cache = FALSE)
+  biblatex_bib <- query_bib("", "bib_files/zotero_better_biblatex.bib", cache = FALSE, use_betterbiblatex = FALSE)
   reference_list <- paste_references(biblatex_bib)
   expect_equal(reference_list, expected_list)
 })
@@ -27,7 +27,7 @@ test_that("Possibly problematic entries", {
     , "De Houwer (2011). Evaluative conditioning: A review of procedure knowledge and mental process theories."
   )
 
-  problematic_bib <- query_bib("", "bib_files/problematic_entries.bib", cache = FALSE)
+  problematic_bib <- query_bib("", "bib_files/problematic_entries.bib", cache = FALSE, use_betterbiblatex = FALSE)
   reference_list <- paste_references(problematic_bib)
   expect_equal(reference_list, expected_list)
 })
