@@ -44,10 +44,9 @@ md_cite <- function(
   if(length(selected_entries) == 0) return(NULL)
 
   # Print queried references
-  tmp <- lapply(selected_entries, function(y) {
-    reference <- paste_references(y)
-    cat("\t", reference, "\n")
-  })
+  pasted_references <- paste_references(selected_entries)
+
+  lapply(pasted_references, function(y) cat("\t", y, "\n"))
   cat("\n")
 
   # Add references to bib_file
@@ -56,6 +55,7 @@ md_cite <- function(
   }
 
   # Return citation keys
+  if(length(selected_entries) > 1) selected_entries <- selected_entries[order(pasted_references)]
   paste_citation_keys(names(selected_entries), in_paren)
 }
 
@@ -63,12 +63,12 @@ md_cite <- function(
 paste_citation_keys <- function(keys, in_paren = FALSE) {
   if(!is.null(keys)) assert_that(is.character(keys)) else return(NULL)
   assert_that(is.flag(in_paren))
+  n_keys <- length(keys)
 
   if(in_paren) {
     keys <- paste(keys, collapse = "; @")
     paste0("[@", keys, "]")
   } else {
-    n_keys <- length(keys)
     if(n_keys == 2) {
       keys <- paste(keys, collapse = " and @")
     } else if(n_keys > 2) {

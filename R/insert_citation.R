@@ -272,7 +272,13 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     })
 
     # Create citation based on current selection
-    current_key <- reactive({paste_citation_keys(input$selected_key, input$in_paren)})
+    current_key <- reactive({
+      if(length(input$selected_key) > 1 & input$in_paren) {
+        paste_citation_keys(input$selected_key[order(input$selected_key)], input$in_paren)
+      } else {
+        paste_citation_keys(input$selected_key, input$in_paren)
+      }
+    })
     output$rendered_key <- renderText({if(!is.null(current_key())) current_key() else "No reference selected."})
 
     new_entries <- reactive({
