@@ -262,6 +262,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
 
       if(length(citation_keys > 0)) {
         current_references <- paste_references(bibliography())
+        citation_keys <- citation_keys[order(current_references)]
         names(citation_keys) <- current_references[order(current_references)]
 
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")

@@ -132,10 +132,11 @@ load_betterbiblatex_bib <- function() {
   betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~\\1", betterbibtex_bib), "~" )[[1]]
 
   # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
+  bib <- c()
   no_batches <- length(betterbibtex_entries) %/% 100 + 1
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
-    writeLines(zotero_entries[((i-1) * 100 + 1):min(i * 100, length(zotero_entries))], con = tmp_bib_file)
+    writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = tmp_bib_file)
     bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
     file.remove(tmp_bib_file)
   }
