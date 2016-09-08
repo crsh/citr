@@ -33,13 +33,17 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
   assert_that(is.character(bib_file))
   assert_that(is.flag(use_betterbiblatex))
 
+  if(rstudioapi::isAvailable("0.99.1111")) {
+    context <- rstudioapi::getSourceEditorContext()
+  } else if(rstudioapi::isAvailable("0.99.796")) {
+    context <- rstudioapi::getActiveDocumentContext()
+  } else stop("The use of this addin requires RStudio 0.99.796 or newer (your version is ", rstudioapi::versionInfo()$version, ").")
+
   betterbiblatex <- betterbiblatex_available()
 
   # Get bibliography files from YAML front matter if available
   ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
   yaml_bib_file <- NULL
-
-  context <- rstudioapi::getActiveDocumentContext()
   yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
 
   ## Always look up index.Rmd if document is in bookdown directory
