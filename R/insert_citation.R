@@ -66,7 +66,8 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     }
 
   ## Search parent documents
-  } else if(any(parents)) {
+  }
+  if(any(parents)) {
     if(sum(parents) > 1) stop("More than one parent document found. See getOption('citr.parent_documents').")
 
     parent_document <- readLines(parents_path[parents])
@@ -75,7 +76,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     if(length(parent_yaml_delimiters) >= 2 &&
        (parent_yaml_delimiters[2] - parent_yaml_delimiters[1] > 1) &&
        grepl("^---\\s*$", parent_document[parent_yaml_delimiters[1]])) {
-        yaml_bib_file <- yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography
+        yaml_bib_file <- c(yaml_bib_file, yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography)
     }
   }
 
