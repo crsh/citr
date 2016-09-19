@@ -5,7 +5,7 @@
 #' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
 #'    \code{./references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-#'    are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+#'    are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
 #'    is then updated to include the inserted reference.
 #'
 #'    If \code{insert_citation} is called while the focus is on a R Markdown document,

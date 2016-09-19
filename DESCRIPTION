@@ -1,19 +1,22 @@
 Package: citr
 Type: Package
-Title: RStudio Add-in to Insert Markdown Citations
-Description: Functions and an RStudio add-in that search a BibTeX-file to create and
+Title: 'RStudio' Add-in to Insert Markdown Citations
+Description: Functions and an 'RStudio' add-in that search a 'BibTeX'-file to create and
   insert formatted Markdown citations into the current document.
-Version: 0.1.0.9029
-Date: 2016-8-03
-Authors@R: person("Frederik", "Aust", email = "frederik.aust@uni-koeln.de", role = c("aut", "cre"))
+Version: 0.2.0
+Date: 2016-9-20
+Authors@R: c(
+  person("Frederik", "Aust", email = "frederik.aust@uni-koeln.de", role = c("aut", "cre")),
+  person("Yihui", "Xie", role = "ctb")
+  )
 URL: https://github.com/crsh/citr
 BugReports: https://github.com/crsh/citr/issues
 Depends:
   R (>= 3.0.0)
 Imports:
-  RefManageR (>= 0.10.13),
+  RefManageR (>= 0.11.0),
   yaml (>= 2.1.13),
-  rstudioapi (>= 0.5),
+  rstudioapi (>= 0.6),
   miniUI (>= 0.1.1),
   shiny (>= 0.13.2),
   assertthat (>= 0.1),

@@ -7,14 +7,14 @@
 #' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #' @param cache Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
 #'    \code{cache = FALSE} bibliography is re-imported on every function call.
-#' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
-#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
-#'    for Zotero} is installed and Zotero is running.
+#' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+#'    Zotero/Juris-M is running.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-#'    are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+#'    are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
 #'    is then updated to include the inserted reference.
 #'
 #' @return Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.
