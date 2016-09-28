@@ -129,7 +129,7 @@ load_betterbiblatex_bib <- function() {
   betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
   betterbibtex_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
   betterbibtex_bib <- strsplit(betterbibtex_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
-  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~\\1", betterbibtex_bib), "~" )[[1]]
+  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~!citr!~\\1", betterbibtex_bib), "~!citr!~" )[[1]]
 
   # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
   bib <- c()
