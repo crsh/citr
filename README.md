@@ -1,7 +1,7 @@
 citr: RStudio Addin to Insert Markdown Citations
 ================
 
-[![CRAN status](http://www.r-pkg.org/badges/version/citr)](https://cran.r-project.org/web/packages/citr/index.html) [![Download counter](http://cranlogs.r-pkg.org/badges/citr)](https://cran.r-project.org/web/packages/citr/index.html) [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Build status](https://api.travis-ci.org/crsh/citr.svg?branch=master)](https://travis-ci.org/crsh/citr)
+[![CRAN status](http://www.r-pkg.org/badges/version/citr)](https://cran.r-project.org/package=citr) [![Download counter](http://cranlogs.r-pkg.org/badges/citr)](https://cran.r-project.org/package=citr) [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active) [![Build status](https://api.travis-ci.org/crsh/citr.svg?branch=master)](https://travis-ci.org/crsh/citr)
 
 `citr` provides functions and an [RStudio addin](https://rstudio.github.io/rstudioaddins/) to search a BibTeX-file to create and insert formatted Markdown citations into the current document.
 

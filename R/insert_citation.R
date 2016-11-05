@@ -5,7 +5,7 @@
 #' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
 #'    \code{./references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-#'    are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+#'    are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
 #'    is then updated to include the inserted reference.
 #'
 #'    If \code{insert_citation} is called while the focus is on a R Markdown document,
@@ -33,13 +33,17 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
   assert_that(is.character(bib_file))
   assert_that(is.flag(use_betterbiblatex))
 
+  if(rstudioapi::isAvailable("0.99.1111")) {
+    context <- rstudioapi::getSourceEditorContext()
+  } else if(rstudioapi::isAvailable("0.99.796")) {
+    context <- rstudioapi::getActiveDocumentContext()
+  } else stop("The use of this addin requires RStudio 0.99.796 or newer (your version is ", rstudioapi::versionInfo()$version, ").")
+
   betterbiblatex <- betterbiblatex_available()
 
   # Get bibliography files from YAML front matter if available
   ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
   yaml_bib_file <- NULL
-
-  context <- rstudioapi::getActiveDocumentContext()
   yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
 
   ## Always look up index.Rmd if document is in bookdown directory
@@ -62,7 +66,8 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     }
 
   ## Search parent documents
-  } else if(any(parents)) {
+  }
+  if(any(parents)) {
     if(sum(parents) > 1) stop("More than one parent document found. See getOption('citr.parent_documents').")
 
     parent_document <- readLines(parents_path[parents])
@@ -71,7 +76,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     if(length(parent_yaml_delimiters) >= 2 &&
        (parent_yaml_delimiters[2] - parent_yaml_delimiters[1] > 1) &&
        grepl("^---\\s*$", parent_document[parent_yaml_delimiters[1]])) {
-        yaml_bib_file <- yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography
+        yaml_bib_file <- c(yaml_bib_file, yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography)
     }
   }
 
@@ -262,6 +267,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
 
       if(length(citation_keys > 0)) {
         current_references <- paste_references(bibliography())
+        citation_keys <- citation_keys[order(current_references)]
         names(citation_keys) <- current_references[order(current_references)]
 
         updateSelectInput(session, "selected_key", choices = c(`Search terms` = "", citation_keys), label = "")
@@ -271,7 +277,13 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
     })
 
     # Create citation based on current selection
-    current_key <- reactive({paste_citation_keys(input$selected_key, input$in_paren)})
+    current_key <- reactive({
+      if(length(input$selected_key) > 1 & input$in_paren) {
+        paste_citation_keys(input$selected_key[order(input$selected_key)], input$in_paren)
+      } else {
+        paste_citation_keys(input$selected_key, input$in_paren)
+      }
+    })
     output$rendered_key <- renderText({if(!is.null(current_key())) current_key() else "No reference selected."})
 
     new_entries <- reactive({

@@ -18,9 +18,9 @@ fields); Regex is supported.}
 \item{cache}{Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
 \code{cache = FALSE} bibliography is re-imported on every function call.}
 
-\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
-Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
-for Zotero} is installed and Zotero is running.}
+\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+Zotero/Juris-M is running.}
 }
 \value{
 If the bibliography contains exactly one match the formated citation is returned, otherwise
@@ -34,7 +34,7 @@ Look up entries in bibliography and insert citation in Markdown format if exactl
 The path to the BibTeX-file can be set in the global options and is set to
    \code{references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-   are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+   are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
    is then updated to include the inserted reference.
 }
 \examples{

@@ -10,9 +10,9 @@ insert_citation(bib_file = getOption("citr.bibliography_path"),
 \arguments{
 \item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
-\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
-Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
-for Zotero} is installed and Zotero is running.}
+\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+Zotero/Juris-M is running.}
 }
 \value{
 Inserts selected Markdown citation(s) at currenct location.
@@ -24,7 +24,7 @@ Invoke RStudio add-in to insert Markdown citations
 The path to the Bib(La)TeX-file can be set in the global options and is set to
    \code{./references.bib} when the package is loaded. Once the path is changed in the
    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-   are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+   are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
    is then updated to include the inserted reference.
 
    If \code{insert_citation} is called while the focus is on a R Markdown document,

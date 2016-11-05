@@ -7,14 +7,14 @@
 #' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #' @param cache Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
 #'    \code{cache = FALSE} bibliography is re-imported on every function call.
-#' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero.
-#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX
-#'    for Zotero} is installed and Zotero is running.
+#' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+#'    Zotero/Juris-M is running.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated. If \code{use_betterbiblatex = TRUE} references
-#'    are imported from Zotero rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
+#'    are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
 #'    is then updated to include the inserted reference.
 #'
 #' @return Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.
@@ -129,13 +129,14 @@ load_betterbiblatex_bib <- function() {
   betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
   betterbibtex_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
   betterbibtex_bib <- strsplit(betterbibtex_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
-  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~\\1", betterbibtex_bib), "~" )[[1]]
+  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~!citr!~\\1", betterbibtex_bib), "~!citr!~" )[[1]]
 
   # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
+  bib <- c()
   no_batches <- length(betterbibtex_entries) %/% 100 + 1
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
-    writeLines(zotero_entries[((i-1) * 100 + 1):min(i * 100, length(zotero_entries))], con = tmp_bib_file)
+    writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = tmp_bib_file)
     bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
     file.remove(tmp_bib_file)
   }
