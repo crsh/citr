@@ -1,3 +1,5 @@
+- Added `encoding` option to functions that read Bib(La)TeX-files and a corresponding global option.
+
 # citr 0.2.0
 
 - Zotero/Juris-M library can now be accessed directly via the Better Bib(La)TeX extension (https://github.com/retorquere/zotero-better-bibtex). The document's bibliography file is updated accordingly. See `?insert_citation`.
