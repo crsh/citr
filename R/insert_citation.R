@@ -29,7 +29,11 @@
 #' @import assertthat
 #' @export
 
-insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_betterbiblatex = getOption("citr.use_betterbiblatex")) {
+insert_citation <- function(
+  bib_file = getOption("citr.bibliography_path")
+  , use_betterbiblatex = getOption("citr.use_betterbiblatex")
+  , encoding = getOption("citr.encoding")
+) {
   assert_that(is.character(bib_file))
   assert_that(is.flag(use_betterbiblatex))
 
@@ -54,6 +58,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
 
   parents_path <- paste(dirname(context$path), candidate_parents, sep = "/")
   parents <- file.exists(parents_path)
+  cat(getSourceEditorContext())
 
   ## Search current document for specified bib files
   if(length(yaml_delimiters) >= 2 &&
@@ -229,9 +234,9 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
 
               if(!is.null(input$read_bib)) {
                 options(citr.bibliography_path = input$read_bib)
-                current_bib <- tryCatch(RefManageR::ReadBib(file = input$read_bib, check = FALSE), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = input$read_bib, check = FALSE, .Encoding = encoding), error = error_handler)
               } else {
-                current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path"), check = FALSE), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path"), check = FALSE, .Encoding = encoding), error = error_handler)
               }
 
             } else if(!is.null(yaml_bib_file)) { # Use YAML bibliography, if available
@@ -239,9 +244,9 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
               options(citr.bibliography_path = absolute_yaml_bib_file)
 
               if(length(yaml_bib_file) == 1) {
-                current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file, check = FALSE), error = error_handler)
+                current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file, check = FALSE, .Encoding = encoding), error = error_handler)
               } else {
-                bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file, check = FALSE), error = error_handler))
+                bibs <- lapply(absolute_yaml_bib_file, function(file) tryCatch(RefManageR::ReadBib(file, check = FALSE, .Encoding = encoding), error = error_handler))
 
                 ## Merge if multiple bib files were imported succesfully
                 not_found <- sapply(bibs, is.null)
@@ -290,7 +295,7 @@ insert_citation <- function(bib_file = getOption("citr.bibliography_path"), use_
       if(betterbiblatex && reactive_variables$use_betterbiblatex) {
         if(file.exists(input$update_bib)) {
 
-          existing_bib <- tryCatch(RefManageR::ReadBib(input$update_bib, check = FALSE), error = error_handler)
+          existing_bib <- tryCatch(RefManageR::ReadBib(input$update_bib, check = FALSE, .Encoding = encoding), error = error_handler)
           if(length(existing_bib) > 0) {
             new_references <- !input$selected_key %in% names(existing_bib)
           } else {

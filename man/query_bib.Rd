@@ -5,7 +5,8 @@
 \title{Query bibliography}
 \usage{
 query_bib(x, bib_file = getOption("citr.bibliography_path"), cache = TRUE,
-  use_betterbiblatex = getOption("citr.use_betterbiblatex"))
+  use_betterbiblatex = getOption("citr.use_betterbiblatex"),
+  encoding = getOption("citr.encoding"))
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
@@ -19,6 +20,8 @@ fields); Regex is supported.}
 \item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
 Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
 Zotero/Juris-M is running.}
+
+\item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
 }
 \value{
 Returns list of class \code{\link[RefManageR]{BibEntry}} including all matching bibliography entries.

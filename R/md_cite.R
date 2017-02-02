@@ -31,6 +31,7 @@ md_cite <- function(
   , bib_file = getOption("citr.bibliography_path")
   , cache = TRUE
   , use_betterbiblatex = getOption("citr.use_betterbiblatex")
+  , encoding = getOption("citr.encoding")
 ) {
   assert_that(is.flag(in_paren))
 
@@ -85,7 +86,7 @@ paste_citation_keys <- function(keys, in_paren = FALSE) {
 
 append_bib_entries <- function(x, bib_file) {
   if(file.exists(bib_file)) {
-    existing_bib <- RefManageR::ReadBib(bib_file, check = FALSE)
+    existing_bib <- RefManageR::ReadBib(bib_file, check = FALSE, .Encoding = encoding)
     new_references <- !names(x) %in% names(existing_bib)
     if(sum(new_references) > 0) RefManageR::WriteBib(x[new_references], file = bib_file, append = TRUE)
   } else {

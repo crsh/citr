@@ -5,6 +5,7 @@
     , citr.bibliography_cache = NULL
     , citr.use_betterbiblatex = TRUE
     , citr.parent_documents = c("index.Rmd", "master.Rmd")
+    , citr.encoding = "UTF-8"
   )
   toset <- !(names(op_citr) %in% names(op))
   if(any(toset)) options(op_citr[toset])

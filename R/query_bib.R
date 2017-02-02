@@ -10,6 +10,7 @@
 #' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
 #'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
 #'    Zotero/Juris-M is running.
+#' @param encoding Character. Encoding of the Bib(La)TeX-file.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
@@ -27,6 +28,7 @@ query_bib <- function(
   , bib_file = getOption("citr.bibliography_path")
   , cache = TRUE
   , use_betterbiblatex = getOption("citr.use_betterbiblatex")
+  , encoding = getOption("citr.encoding")
 ) {
   assert_that(is.string(x))
   assert_that(is.string(bib_file))
@@ -42,7 +44,7 @@ query_bib <- function(
     if(use_betterbiblatex & betterbiblatex_available()) {
       bib <- load_betterbiblatex_bib()
     } else {
-      bib <- RefManageR::ReadBib(file = bib_file, check = FALSE)
+      bib <- RefManageR::ReadBib(file = bib_file, check = FALSE, .Encoding = encoding)
     }
 
     if(cache) options(citr.bibliography_cache = bib)
@@ -137,7 +139,7 @@ load_betterbiblatex_bib <- function() {
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
     writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = tmp_bib_file)
-    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
+    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE, .Encoding = encoding))
     file.remove(tmp_bib_file)
   }
 
