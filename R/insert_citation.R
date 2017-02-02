@@ -58,7 +58,6 @@ insert_citation <- function(
 
   parents_path <- paste(dirname(context$path), candidate_parents, sep = "/")
   parents <- file.exists(parents_path)
-  cat(getSourceEditorContext())
 
   ## Search current document for specified bib files
   if(length(yaml_delimiters) >= 2 &&
@@ -106,6 +105,16 @@ insert_citation <- function(
 
   ui <- miniPage(
     miniContentPanel(
+      
+      tags$head(
+        tags$style(HTML("
+          .shiny-output-error-validation {
+            color: red;
+            font-weight: bold;
+          }
+        "))
+      ),
+      
       stableColumnLayout(
         selectizeInput(
           "selected_key"
@@ -126,7 +135,8 @@ insert_citation <- function(
       ),
       hr(),
       uiOutput("bib_file"),
-      uiOutput("zotero_status")
+      uiOutput("zotero_status"),
+      uiOutput("read_error")
     )
   )
 
@@ -200,6 +210,10 @@ insert_citation <- function(
         }
       }
     })
+    
+    output$read_error <- renderText({
+      validate(need(!(is.character(bibliography()) && grepl("^Error: ", bibliography())), bibliography()))
+    })
 
     # Discard cache reactive
     observeEvent(input$discard_cache, {
@@ -220,7 +234,7 @@ insert_citation <- function(
 
       # Use cached bibliography, if available
       if(
-        is.null(getOption("citr.bibliography_cache")) #||
+        is.null(getOption("citr.bibliography_cache")) || (is.character(getOption("citr.bibliography_cache")) && grepl("^Error: ", getOption("citr.bibliography_cache"))) #||
         # (!is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path"))))
       ) {
         withProgress({
@@ -262,7 +276,7 @@ insert_citation <- function(
       } else {
         current_bib <- getOption("citr.bibliography_cache")
       }
-
+      
       current_bib
     })
 
@@ -347,9 +361,7 @@ stableColumnLayout <- function(...) {
 
 error_handler <- function(x) {
   if(x$message != "unable to open file to read") {
-    print(x)
-    cat("\n")
+    error_message <- print(x)
+    paste("Error: Failed to read Bib(La)TeX-file\n\n", error_message, "\n")
   }
-
-  NULL
 }
