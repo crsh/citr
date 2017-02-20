@@ -136,13 +136,17 @@ load_betterbiblatex_bib <- function() {
   # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
   bib <- c()
   no_batches <- length(betterbibtex_entries) %/% 100 + 1
+  
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
+    
     writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = tmp_bib_file)
-    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE, .Encoding = encoding))
+    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
     file.remove(tmp_bib_file)
   }
 
+  try(on.exit(file.remove(tmp_bib_file)))
+  
   class(bib) <- c("BibEntry", "bibentry")
   bib
 }
