@@ -1,4 +1,5 @@
-- Added `encoding` option to functions that read Bib(La)TeX-files and a corresponding global option.
+- Added `encoding` option to functions that read Bib(La)TeX-files and a corresponding global option. Option is also used to read parent documents in `insert_citation()`.
+- Error message in `insert_citation()` are printed to the dialog instead of the console.
 
 # citr 0.2.0
 

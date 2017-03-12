@@ -74,7 +74,7 @@ insert_citation <- function(
   if(any(parents)) {
     if(sum(parents) > 1) stop("More than one parent document found. See getOption('citr.parent_documents').")
 
-    parent_document <- readLines(parents_path[parents])
+    parent_document <- readLines(parents_path[parents], encoding = encoding)
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     if(length(parent_yaml_delimiters) >= 2 &&
