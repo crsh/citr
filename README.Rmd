@@ -1,6 +1,6 @@
 ---
-title: "citr: RStudio Addin to Insert Markdown Citations"
-output: github_document
+title   : "citr: RStudio Addin to Insert Markdown Citations"
+output  : github_document
 ---
 
 [![CRAN status](http://www.r-pkg.org/badges/version/citr)](https://cran.r-project.org/package=citr) [![Download counter](http://cranlogs.r-pkg.org/badges/citr)](https://cran.r-project.org/package=citr)
@@ -31,7 +31,7 @@ devtools::install_github("crsh/citr")
 Once `citr` is installed and you have restarted your R session,  the addin appears in the menus.
 Alternatively, you can define a [keyboard shortcut](https://rstudio.github.io/rstudioaddins/#keyboard-shorcuts) to call the addin.
 
-![](inst/images/addin_demo.gif)
+![](tools/images/addin_demo.gif)
 
 The addin will automatically look up the Bib(La)TeX-file(s) specified in the YAML front matter.
 If the document does not contain a YAML front matter the addin will attempt to locate a parent document and look up the Bib(La)TeX-file specified therein.
@@ -75,8 +75,8 @@ If you are interested in other handy addins take a look at this [list](https://g
 
 # Package dependencies
 
-```{r echo = FALSE, fig.width = 10, fig.height = 9, message = FALSE}
-source("https://gist.githubusercontent.com/crsh/c906e93c260488e7363ea606243057c2/raw/5243c091d5809cb71473c4ef3f926065e9e2532d/plot_dependencies.R")
+```{r dependency_plot, echo = FALSE, fig.width = 10, fig.height = 9, message = FALSE, fig.path = "tools/images/"}
+source("https://gist.githubusercontent.com/crsh/c906e93c260488e7363ea606243057c2/raw/817a8b1304ee6b1b6b149c3e948d8a59550313bd/plot_dependencies.R")
 
 plot_dependencies()
 ```
