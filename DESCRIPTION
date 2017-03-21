@@ -21,7 +21,8 @@ Imports:
   shiny (>= 0.13.2),
   assertthat (>= 0.1),
   methods (>= 3.0.0),
-  curl (>= 1.1)
+  curl (>= 1.1),
+  stringi (>= 1.1.2)
 Suggests:
   testthat (>= 1.0.2)
 License: MIT + file LICENSE

@@ -52,7 +52,7 @@ md_cite <- function(
 
   # Add references to bib_file
   if(use_betterbiblatex && betterbiblatex_available()) {
-    append_bib_entries(selected_entries, bib_file)
+    append_bib_entries(selected_entries, bib_file, encoding)
   }
 
   # Return citation keys
@@ -84,7 +84,7 @@ paste_citation_keys <- function(keys, in_paren = FALSE) {
   }
 }
 
-append_bib_entries <- function(x, bib_file) {
+append_bib_entries <- function(x, bib_file, encoding) {
   if(file.exists(bib_file)) {
     existing_bib <- RefManageR::ReadBib(bib_file, check = FALSE, .Encoding = encoding)
     new_references <- !names(x) %in% names(existing_bib)

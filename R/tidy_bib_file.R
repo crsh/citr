@@ -19,18 +19,18 @@ tidy_bib_file <- function(
   , encoding = getOption("encoding")
 ) {
   assert_that(is.character(rmd_file))
-  assert_that(is.string(redundant_bibliography))
+  assert_that(is.string(messy_bibliography))
   if(!is.null(file)) {
     assert_that(is.string(file))
   } else {
-    file <- redundant_bibliography
+    file <- messy_bibliography
   }
   assert_that(is.string(encoding))
   assert_that(length(encoding) == 1)
   
   rmd <- c()
   for(i in seq_along(rmd_file)) {
-    rmd <- paste(c(rmd, readLines(rmd_path, encoding = encoding)), collapse = " ")
+    rmd <- paste(c(rmd, readLines(rmd_file, encoding = encoding)), collapse = " ")
   }
   
   if(nchar(rmd) == 0){
@@ -42,9 +42,9 @@ tidy_bib_file <- function(
   reference_handles <- stringi::stri_extract_all(manuscript_test, regex = "@[^;\\s\\],]+")[[1]]
   reference_handles <- gsub("@", "", unique(reference_handles))
   
-  if(length(reference_handles) == 0) stop("Found no references in ", rmd_path)
+  if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
   
-  complete_bibliography <- RefManageR::ReadBib(lookup_bibliography, .Encoding = encoding)
+  complete_bibliography <- RefManageR::ReadBib(messy_bibliography, .Encoding = encoding)
   
   necessary_bibliography <- complete_bibliography[names(complete_bibliography) %in% reference_handles]
   

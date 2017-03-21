@@ -46,6 +46,18 @@ md_cite("foo 2016", bib_file = "references.bib")
 
 If you are using Zotero or Juris-M `citr` can access your reference database directly. For this to work, you need to install the [Better Bib(La)TeX extension](https://github.com/retorquere/zotero-better-bibtex/wiki), which I would recommend anyway. Once the extension is installed and your reference manager is running, `citr` will automatically access all your references and keep your Bib(La)Tex-file updated by adding missing references. If you dislike this behavior, you can disable it by setting `options(citr.use_betterbiblatex = FALSE)`.
 
+### Tidying bibliography files
+
+When you are done writing, your Bib(La)Tex file is likely to contain some unneeded references, which you added while writing but removed during revisions. `tidy_bib_file()` removes unneeded (or duplicate) entries from your Bib(La)Tex-file.
+
+``` {r}
+tidy_bib_file(
+  rmd_file = "report.Rmd"
+  , messy_bibliography = "references.bib"
+  , file = "tidy_references.bib"
+)
+```
+
 Known problems
 --------------
 
