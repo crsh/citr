@@ -1,5 +1,7 @@
-- Added `encoding` option to functions that read Bib(La)TeX-files and a corresponding global option. Option is also used to read parent documents in `insert_citation()`.
-- Error message in `insert_citation()` are printed to the dialog instead of the console.
+
+- New function `tidy_bib_file()` removes duplicate and unneeded entries from a Bib(La)Tex-file.
+- Added `encoding` option to functions that read Bib(La)TeX-files and a corresponding global option. Option is also used to read parent documents in `insert_citation()` (reported by @sammo3182 #11)
+- Error message in `insert_citation()` are printed to the dialog instead of the console (reported by @sammo3182 #11)
 
 # citr 0.2.0
 

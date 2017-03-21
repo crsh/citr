@@ -2,6 +2,7 @@
 
 export(insert_citation)
 export(md_cite)
+export(tidy_bib_file)
 import(assertthat)
 import(miniUI)
 import(shiny)
