@@ -87,7 +87,7 @@ If you are interested in other handy addins take a look at this [list](https://g
 
 # Package dependencies
 
-```{r dependency_plot, echo = FALSE, fig.width = 10, fig.height = 9, message = FALSE, fig.path = "tools/images/"}
+```{r dependency_plot, echo = FALSE, fig.width = 10, fig.height = 9, message = FALSE, warning = FALSE, fig.path = "tools/images/"}
 source("https://gist.githubusercontent.com/crsh/c906e93c260488e7363ea606243057c2/raw/817a8b1304ee6b1b6b149c3e948d8a59550313bd/plot_dependencies.R")
 
 plot_dependencies()
