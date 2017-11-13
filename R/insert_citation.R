@@ -38,8 +38,9 @@ insert_citation <- function(
   assert_that(is.flag(use_betterbiblatex))
 
   if(rstudioapi::isAvailable("0.99.1111")) {
-    context <- rstudioapi::getSourceEditorContext()
-  } else if(rstudioapi::isAvailable("0.99.796")) {
+    context <- tryCatch(rstudioapi::getSourceEditorContext(), error = function(e) NULL)
+  }
+  if((exists("context") && is.null(context)) || rstudioapi::isAvailable("0.99.796")) {
     context <- rstudioapi::getActiveDocumentContext()
   } else stop("The use of this addin requires RStudio 0.99.796 or newer (your version is ", rstudioapi::versionInfo()$version, ").")
 
@@ -105,7 +106,7 @@ insert_citation <- function(
 
   ui <- miniPage(
     miniContentPanel(
-      
+
       tags$head(
         tags$style(HTML("
           .shiny-output-error-validation {
@@ -114,7 +115,7 @@ insert_citation <- function(
           }
         "))
       ),
-      
+
       stableColumnLayout(
         selectizeInput(
           "selected_key"
@@ -210,7 +211,7 @@ insert_citation <- function(
         }
       }
     })
-    
+
     output$read_error <- renderText({
       validate(need(!(is.character(bibliography()) && grepl("^Error: ", bibliography())), bibliography()))
     })
@@ -276,7 +277,7 @@ insert_citation <- function(
       } else {
         current_bib <- getOption("citr.bibliography_cache")
       }
-      
+
       current_bib
     })
 
@@ -336,7 +337,7 @@ insert_citation <- function(
         }
 
         # Insert citation
-        if(!(current_key() %in% c("[@]", "@"))) rstudioapi::insertText(current_key())
+        if(!(current_key() %in% c("[@]", "@"))) rstudioapi::insertText(text = current_key(), id = context$id)
         invisible(stopApp())
       }
     )
