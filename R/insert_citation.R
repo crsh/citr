@@ -242,7 +242,7 @@ insert_citation <- function(
           if(betterbiblatex && reactive_variables$use_betterbiblatex) {
 
             if(!is.null(input$update_bib)) options(citr.bibliography_path = input$update_bib)
-            current_bib <- load_betterbiblatex_bib()
+            current_bib <- load_betterbiblatex_bib(encoding)
 
           } else {
             if(is.null(yaml_bib_file)) { # Use specified bibliography

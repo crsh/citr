@@ -42,7 +42,7 @@ query_bib <- function(
   if(is.null(getOption("citr.bibliography_cache")) || !cache) {
 
     if(use_betterbiblatex & betterbiblatex_available()) {
-      bib <- load_betterbiblatex_bib()
+      bib <- load_betterbiblatex_bib(encoding)
     } else {
       bib <- RefManageR::ReadBib(file = bib_file, check = FALSE, .Encoding = encoding)
     }
@@ -127,7 +127,19 @@ betterbiblatex_available <- function() {
   )
 }
 
-load_betterbiblatex_bib <- function() {
+load_betterbiblatex_bib <- function(encoding) {
+
+  # library("httr")
+  # bb_response <- POST(
+  #   bb_library_url
+  #   , add_headers("Content-Type" = "application/json")
+  #   , body = '{"jsonrpc": "2.0", "method": "libraries" }'
+  #   , encode = "json"
+  # )
+  #
+  # headers(bb_response)$`x-zotero-version`
+  # do.call(rbind, content(bb_response)$result)
+
   betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
   betterbibtex_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
   betterbibtex_bib <- strsplit(betterbibtex_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
@@ -136,17 +148,17 @@ load_betterbiblatex_bib <- function() {
   # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
   bib <- c()
   no_batches <- length(betterbibtex_entries) %/% 100 + 1
-  
+
   for(i in seq_len(no_batches)) {
     tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
-    
-    writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = tmp_bib_file)
+
+    writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = file(tmp_bib_file, encoding = encoding))
     bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
     file.remove(tmp_bib_file)
   }
 
   try(on.exit(file.remove(tmp_bib_file)))
-  
+
   class(bib) <- c("BibEntry", "bibentry")
   bib
 }
