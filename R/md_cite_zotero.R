@@ -3,7 +3,6 @@
 #' Look up entries in Zotero database and insert citation in Markdown format.
 #'
 #' @param in_paren Logical. Determines if citation is in parentheses.
-#' @param bib_file Character. Path to Bib(La)TeX-file. See details.
 #'
 #' @details The path to the Bib(La)TeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
@@ -17,14 +16,13 @@
 #'
 #' @examples
 #' \dontrun{
-#'   md_cite_zotero(bib_file = "references.bib")
+#'   md_cite_zotero()
 #' }
 #'
 #' @import assertthat
 
 md_cite_zotero <- function(
   in_paren = TRUE
-  , bib_file = options("citr.bibliography_path")
 ) {
   if(!betterbiblatex_available()) stop("Could not connect to Zotero's Better-BibTeX extension. Is Zotero up and running?")
   assert_that(is.flag(in_paren))

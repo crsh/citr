@@ -22,4 +22,3 @@ Removes duplicate and unneeded entries from a Bib(La)Tex-file.
 \examples{
 NULL
 }
-

@@ -6,12 +6,15 @@
 \usage{
 insert_citation(bib_file = getOption("citr.bibliography_path"),
   use_betterbiblatex = getOption("citr.use_betterbiblatex"),
+  betterbiblatex_format = getOption("citr.betterbiblatex_format"),
   encoding = getOption("citr.encoding"))
 }
 \arguments{
 \item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 
-\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+\item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.}
+
+\item{betterbiblatex_format}{Charcter. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
 Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
 Zotero/Juris-M is running.}
 
@@ -45,4 +48,3 @@ The path to the Bib(La)TeX-file can be set in the global options and is set to
 }
 
 }
-

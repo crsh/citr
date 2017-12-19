@@ -8,8 +8,10 @@
 #' @param cache Logical. If \code{cache = TRUE} cached bibliography is used, if available. If
 #'    \code{cache = FALSE} bibliography is re-imported on every function call.
 #' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
+#' @param betterbiblatex_format Charcter. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
 #'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
 #'    Zotero/Juris-M is running.
+#' @param exclude_betterbiblatex_library Character. A vector of Zotero/Juris-M library names not to query.
 #' @param encoding Character. Encoding of the Bib(La)TeX-file.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
@@ -28,6 +30,8 @@ query_bib <- function(
   , bib_file = getOption("citr.bibliography_path")
   , cache = TRUE
   , use_betterbiblatex = getOption("citr.use_betterbiblatex")
+  , betterbiblatex_format = getOption("citr.betterbiblatex_format")
+  , exclude_betterbiblatex_library = getOption("citr.exclude_betterbiblatex_library")
   , encoding = getOption("citr.encoding")
 ) {
   assert_that(is.string(x))
@@ -37,12 +41,16 @@ query_bib <- function(
   if(use_betterbiblatex && !betterbiblatex_available()) {
     message("Could not connect to Zotero's Better-BibTeX extension; importing references from", bib_file, ". Is Zotero up and running?")
   }
+  assert_that(is.string(betterbiblatex_format))
+  if(!betterbiblatex_format %in% c("bibtex", "biblatex")) stop("Bibliography format not supported. Use either 'bibtex'  or 'biblatex'.")
+  assert_that(is.string(encoding))
 
   # Use cached bibliography, if available
   if(is.null(getOption("citr.bibliography_cache")) || !cache) {
 
     if(use_betterbiblatex & betterbiblatex_available()) {
-      bib <- load_betterbiblatex_bib(encoding)
+      cat("Connecting to Zotero...\n")
+      bib <- load_betterbiblatex_bib(encoding, betterbiblatex_format, exclude_betterbiblatex_library)
     } else {
       bib <- RefManageR::ReadBib(file = bib_file, check = FALSE, .Encoding = encoding)
     }
@@ -127,38 +135,82 @@ betterbiblatex_available <- function() {
   )
 }
 
-load_betterbiblatex_bib <- function(encoding) {
+load_betterbiblatex_bib <- function(encoding, betterbiblatex_format = "bibtex", exclude_betterbiblatex_library = NULL, increment_progress = FALSE) {
 
-  # library("httr")
-  # bb_response <- POST(
-  #   bb_library_url
-  #   , add_headers("Content-Type" = "application/json")
-  #   , body = '{"jsonrpc": "2.0", "method": "libraries" }'
-  #   , encode = "json"
-  # )
-  #
-  # headers(bb_response)$`x-zotero-version`
-  # do.call(rbind, content(bb_response)$result)
-
-  betterbibtex_url <- "http://localhost:23119/better-bibtex/library?library.biblatex"
-  betterbibtex_bib <- rawToChar(curl::curl_fetch_memory(url = betterbibtex_url)$content)
-  betterbibtex_bib <- strsplit(betterbibtex_bib, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
-  betterbibtex_entries <- strsplit(gsub("(@\\w+\\{)", "~!citr!~\\1", betterbibtex_bib), "~!citr!~" )[[1]]
-
-  # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
   bib <- c()
-  no_batches <- length(betterbibtex_entries) %/% 100 + 1
+  bbt_libraries <- query_bbt_libraries()
 
-  for(i in seq_len(no_batches)) {
-    tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
+  if(is.null(bbt_libraries)) {
+    betterbibtex_url <- paste0("http://localhost:23119/better-bibtex/library?library.", betterbiblatex_format)
+    bib <- import_bbt_piecewise(bib, betterbibtex_url, encoding, increment_progress)
+  } else {
+    betterbibtex_baseurl <- "http://localhost:23119/better-bibtex/library?/"
+    bbt_libraries <- bbt_libraries[!unlist(bbt_libraries[, "name"] %in% exclude_betterbiblatex_library), , drop = FALSE]
+    group_library_id <- unlist(bbt_libraries[, "id"])
 
-    writeLines(betterbibtex_entries[((i-1) * 100 + 1):min(i * 100, length(betterbibtex_entries))], con = file(tmp_bib_file, encoding = encoding))
-    bib <- c(bib, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE))
-    file.remove(tmp_bib_file)
+    for(bib_i in group_library_id) {
+      betterbibtex_url_i <- paste0(betterbibtex_baseurl, bib_i, "/library.", betterbiblatex_format)
+      group_library_name_i <- unlist(bbt_libraries[unlist(bbt_libraries[, "id"]) == bib_i, "name"])
+      if(increment_progress) {
+        setProgress(detail = paste0("\n'", group_library_name_i[[1]], "'"))
+      } else {
+        cat("Importing '", group_library_name_i, "'...\n", sep = "")
+      }
+
+      bib <- import_bbt_piecewise(
+        bib
+        , betterbibtex_url_i
+        , encoding
+        , increment_progress = increment_progress
+        , progress_share = 1 / length(group_library_id)
+      )
+    }
   }
-
-  try(on.exit(file.remove(tmp_bib_file)))
 
   class(bib) <- c("BibEntry", "bibentry")
   bib
 }
+
+
+import_bbt_piecewise <- function(x, location, encoding, increment_progress, progress_share = 1) {
+  betterbibtex_bib_i <- rawToChar(curl::curl_fetch_memory(url = location)$content)
+  betterbibtex_bib_i <- strsplit(betterbibtex_bib_i, "@comment\\{jabref-meta")[[1]][1] # Remove jab-ref comments
+  betterbibtex_entries_i <- strsplit(gsub("(@\\w+\\{)", "~!citr!~\\1", betterbibtex_bib_i), "~!citr!~" )[[1]]
+
+  # Create and read multiple biblatex files because bibtex::read.bib does not work with large files
+  no_batches <- length(betterbibtex_entries_i) %/% 100 + 1
+
+  for(j in seq_len(no_batches)) {
+    tmp_bib_file <- paste0(paste(sample(c(letters, LETTERS, 0:9), size = 32, replace = TRUE), collapse = ""), ".bib")
+
+    tmp_con <- file(tmp_bib_file, encoding = encoding)
+    writeLines(betterbibtex_entries_i[((j-1) * 100 + 1):min(j * 100, length(betterbibtex_entries_i))], con = tmp_con)
+    close(tmp_con)
+
+    x <- c(x, RefManageR::ReadBib(file = tmp_bib_file, check = FALSE, .Encoding = encoding))
+    file.remove(tmp_bib_file)
+
+    if(increment_progress) shiny::incProgress((1 / no_batches) * progress_share)
+  }
+
+  try(on.exit(suppressWarnings(file.remove(tmp_bib_file))), silent = TRUE)
+  x
+}
+
+
+query_bbt_libraries <- function(x) {
+  # If installed BBT is >= 5.0.50 use JSON-RPC to qurey library IDs
+  bbt_json_response <- httr::POST(
+    "http://localhost:23119/better-bibtex/json-rpc"
+    , httr::add_headers("Content-Type" = "application/json")
+    , body = '{"jsonrpc": "2.0", "method": "user.groups" }'
+    , encode = "json"
+  )
+
+  if(any(grepl("No endpoint found", httr::content(bbt_json_response)))) {
+    NULL
+  } else {
+    do.call(rbind, httr::content(bbt_json_response)$result)
+  }
+}
+

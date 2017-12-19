@@ -4,13 +4,10 @@
 \alias{md_cite_zotero}
 \title{Insert citation in Markdown format from Zotero}
 \usage{
-md_cite_zotero(in_paren = TRUE,
-  bib_file = options("citr.bibliography_path"))
+md_cite_zotero(in_paren = TRUE)
 }
 \arguments{
 \item{in_paren}{Logical. Determines if citation is in parentheses.}
-
-\item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
 }
 \value{
 If the bibliography contains exactly one match the formated citation is returned, otherwise
@@ -27,11 +24,10 @@ The path to the Bib(La)TeX-file can be set in the global options and is set to
 }
 \examples{
 \dontrun{
-  md_cite_zotero(bib_file = "references.bib")
+  md_cite_zotero()
 }
 
 }
 \seealso{
 \code{\link{insert_citation}}
 }
-
