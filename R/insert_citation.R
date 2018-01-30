@@ -92,7 +92,7 @@ insert_citation <- function(
   }
 
   if(!is.null(yaml_bib_file)) {
-    relative_paths <- !grepl("^\\/|~", yaml_bib_file)
+    relative_paths <- !grepl("^(\\/|~|\\w*:\\/+)", yaml_bib_file)
     absolute_yaml_bib_file <- yaml_bib_file
     absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
 
