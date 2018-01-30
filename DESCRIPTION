@@ -14,7 +14,7 @@ BugReports: https://github.com/crsh/citr/issues
 Depends:
   R (>= 3.0.0)
 Imports:
-  RefManageR (>= 0.11.0),
+  RefManageR (>= 0.14.2),
   yaml (>= 2.1.13),
   rstudioapi (>= 0.6),
   miniUI (>= 0.1.1),

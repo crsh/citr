@@ -61,11 +61,11 @@ tidy_bib_file(
 Known problems
 --------------
 
-`citr` relies on `RefManager::ReadBib()` and, thus, indirectly on `bibtex::read.bib()` to load bibliographies.
+`citr` relies on `RefManager::ReadBib()` and, thus, indirectly on `bibtex::read.bib()` to load bibliographies. I have noticed that very long Bib(La)Tex fields can cause these underlying functions to fail (e.g., `Error in do_read_bib(file, encoding = .Encoding, srcfile): lex fatal error: input buffer overflow, can't enlarge buffer because scanner uses REJECT`). To avoid such problems, I strongly recommend to disable the export of potentially long metadata fields, such as abstract and notes. The Better Bib(La)TeX-plugin allows users to specify fields to omit:
 
--   I have noticed that very long Bib(La)Tex files can cause the underlying functions to fail (e.g., `Error: lex fatal error: fatal flex scanner internal error--end of buffer missed`). A restart of the R session may be necessary to resolve the issue.
+![](tools/images/bbt_omit_abstract.png)
 
--   Currently, a [bug](https://github.com/mwmclean/RefManageR/issues/16) in `tools::latexToUtf8()` can cause `RefManager::ReadBib()` to hang and never finish. This problem has been worked around in the development version of `RefManager` (&gt; 0.10.13). If you experience problems like this, try installing `RefManager` [from GitHub](https://github.com/mwmclean/RefManageR).
+Once, the above error has occured, it may be neccessary to restart the R session. Otherwise reading any other file may fail with `Error: lex fatal error: fatal flex scanner internal error--end of buffer missed`.
 
 Other RStudio addins
 --------------------
@@ -74,7 +74,5 @@ If you are interested in other handy addins take a look at this [list](https://g
 
 Package dependencies
 ====================
-
-    ## Warning: Ignoring unknown parameters: segment.color
 
 ![](tools/images/dependency_plot-1.png)
