@@ -431,25 +431,36 @@ insert_citation <- function(
     )
 
     new_entries <- reactive({
-      if(betterbiblatex && reactive_variables$use_betterbiblatex) {
-        if(file.exists(input$update_bib)) {
+      shiny::withProgress({
+        if(betterbiblatex && reactive_variables$use_betterbiblatex) {
+          if(file.exists(input$update_bib)) {
 
-          existing_bib <- read_bib_catch_error(input$update_bib, encoding)
-          if(length(existing_bib) > 0) {
-            new_references <- !input$selected_key %in% names(existing_bib)
+            if(
+              file.info(input$update_bib)$mtime != getOption("citr.bib_file_last_modified") ||
+              is.null(getOption("citr.bib_file_cache"))
+            ) {
+              existing_bib <- read_bib_catch_error(input$update_bib, encoding)
+              options(citr.bib_file_cache = existing_bib)
+            } else {
+              existing_bib <- getOption("citr.bib_file_cache")
+            }
+
+            if(length(existing_bib) > 0) {
+              new_references <- !input$selected_key %in% names(existing_bib)
+            } else {
+              new_references <- rep(TRUE, length(input$selected_key))
+            }
+
+            if(length(input$selected_key) > 0 && sum(new_references) > 0) {
+              new_bib_key <- paste0("^", input$selected_key[new_references], "$", collapse = "|")
+              return(bibliography()[key = new_bib_key])
+            } else return(NULL)
+
           } else {
-            new_references <- rep(TRUE, length(input$selected_key))
+            return(bibliography()[key = paste0("^", input$selected_key, "$", collapse = "|")])
           }
-
-          if(length(input$selected_key) > 0 && sum(new_references) > 0) {
-            new_bib_key <- paste0("^", input$selected_key[new_references], "$", collapse = "|")
-            return(bibliography()[key = new_bib_key])
-          } else return(NULL)
-
-        } else {
-          return(bibliography()[key = paste0("^", input$selected_key, "$", collapse = "|")])
-        }
-      } else NULL
+        } else NULL
+      }, message = "Updating bibliography file...")
     })
 
     # Insert citation when button is clicked
@@ -464,6 +475,17 @@ insert_citation <- function(
               , file = input$update_bib
               , append = TRUE
             )
+            options(citr.bib_file_last_modified = file.info(input$update_bib)$mtime)
+
+            # This is equivalent to check = FALSE for c.BibEntry()
+            old_BibOptions <- RefManageR::BibOptions(check.entries = FALSE)
+            options(
+              citr.bib_file_cache = c(
+                getOption("citr.bib_file_cache")
+                , RefManageR::as.BibEntry(new_entries())
+              )
+            )
+            RefManageR::BibOptions(old_BibOptions)
           }
         }
 

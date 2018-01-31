@@ -4,9 +4,11 @@
     citr.bibliography_path = "./references.bib"
     , citr.bibliography_cache = NULL
     , citr.citation_key_cache = NULL
-    , citr.betterbiblatex_format = "bibtex"
     , citr.use_betterbiblatex = TRUE
     , citr.exclude_betterbiblatex_library = NULL
+    , citr.betterbiblatex_format = "bibtex"
+    , citr.bib_file_last_modified = Sys.time()
+    , citr.bib_file_cache = NULL
     , citr.parent_documents = c("index.Rmd", "master.Rmd")
     , citr.encoding = "UTF-8"
   )
