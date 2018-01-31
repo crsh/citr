@@ -37,13 +37,19 @@ insert_citation <- function(
 ) {
   assert_that(is.character(bib_file))
   assert_that(is.flag(use_betterbiblatex))
+  assert_that(is.character(betterbiblatex_format))
+  assert_that(is.character(encoding))
 
   if(rstudioapi::isAvailable("0.99.1111")) {
     context <- tryCatch(rstudioapi::getSourceEditorContext(), error = function(e) NULL)
   }
   if((exists("context") && is.null(context)) || rstudioapi::isAvailable("0.99.796")) {
     context <- rstudioapi::getActiveDocumentContext()
-  } else stop("The use of this addin requires RStudio 0.99.796 or newer (your version is ", rstudioapi::versionInfo()$version, ").")
+  } else stop(
+    "The use of this addin requires RStudio 0.99.796 or newer (your version is "
+    , rstudioapi::versionInfo()$version
+    , ")."
+  )
 
   betterbiblatex <- betterbiblatex_available()
   if(betterbiblatex) {
@@ -53,58 +59,77 @@ insert_citation <- function(
   }
 
   # Get bibliography files from YAML front matter if available
-  ## Let's hope this doesn't cause too much trouble; this is a lot more sofisticated in rmarkdown, but the functions are not exported.
-  yaml_bib_file <- NULL
-  yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
+  if(context$path == "") {
+    message(
+      "\nUnsaved R Markdown document: Cannot locate Bib(La)TeX file(s);
+         falling back to manual path specification.\n"
+    )
+    yaml_bib_file <- NULL
+  } else {
+    yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", context$contents)
+    yaml_bib_file <- get_bib_from_yaml(
+      yaml_delimiters
+      , context$contents
+      , bib_file = NULL
+    )
+  }
 
   ## Always look up index.Rmd if document is in bookdown directory
   candidate_parents <- getOption("citr.parent_documents")
-  if(any(file.exists(paste(dirname(context$path), c("_bookdown.yml", "_site.yml"), sep = "/")))) {
-    if(!"index.Rmd" %in% candidate_parents) candidate_parents <- c(candidate_parents, "index.Rmd")
+  bookdown_files <- paste(dirname(context$path), c("_bookdown.yml", "_site.yml"), sep = "/")
+  if(any(file.exists(bookdown_files))) {
+    if(!"index.Rmd" %in% candidate_parents) {
+      candidate_parents <- c(candidate_parents, "index.Rmd")
+    }
   }
 
   parents_path <- paste(dirname(context$path), candidate_parents, sep = "/")
   parents <- file.exists(parents_path)
 
-  ## Search current document for specified bib files
-  if(length(yaml_delimiters) >= 2 &&
-     (yaml_delimiters[2] - yaml_delimiters[1] > 1) &&
-     grepl("^---\\s*$", context$contents[yaml_delimiters[1]])) {
-    if(context$path == "") {
-      message("\nUnsaved R Markdown document: Cannot locate Bib(La)TeX file(s); falling back to manual path specification.\n")
-    } else {
-      yaml_bib_file <- yaml::yaml.load(paste(context$contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography
-    }
-
-  ## Search parent documents
-  }
+  ## Search parent documents for bibliography files
   if(any(parents)) {
-    if(sum(parents) > 1) stop("More than one parent document found. See getOption('citr.parent_documents').")
+    if(sum(parents) > 1) {
+      stop("More than one parent document found. See getOption('citr.parent_documents').")
+    }
 
     parent_document <- readLines(parents_path[parents], encoding = encoding)
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
-    if(length(parent_yaml_delimiters) >= 2 &&
-       (parent_yaml_delimiters[2] - parent_yaml_delimiters[1] > 1) &&
-       grepl("^---\\s*$", parent_document[parent_yaml_delimiters[1]])) {
-        yaml_bib_file <- c(yaml_bib_file, yaml::yaml.load(paste(parent_document[(parent_yaml_delimiters[1] + 1):(parent_yaml_delimiters[2] - 1)], collapse = "\n"))$bibliography)
-    }
+    yaml_bib_file <- get_bib_from_yaml(
+      parent_yaml_delimiters
+      , parent_document
+      , bib_file = yaml_bib_file
+    )
   }
 
   if(!is.null(yaml_bib_file)) {
     relative_paths <- !grepl("^(\\/|~|\\w*:\\/+)", yaml_bib_file)
     absolute_yaml_bib_file <- yaml_bib_file
-    absolute_yaml_bib_file[relative_paths] <- paste(dirname(context$path), yaml_bib_file[relative_paths], sep = "/")
+    absolute_yaml_bib_file[relative_paths] <- paste(
+      dirname(context$path)
+      , yaml_bib_file[relative_paths]
+      , sep = "/"
+    )
 
     if(betterbiblatex && use_betterbiblatex) {
       yaml_choices <- absolute_yaml_bib_file
       names(yaml_choices) <- yaml_bib_file
     }
 
-    bib_message <- paste0("Bibliography file(s) found in YAML front matter", ifelse(exists("parent_document"), paste0(" of '", candidate_parents[parents], "'"), ""), ":")
+    bib_message <- paste0(
+      "Bibliography file(s) found in YAML front matter"
+      , ifelse(
+        exists("parent_document")
+        , paste0(" of '", candidate_parents[parents], "'")
+        , "")
+      , ":"
+    )
 
     # Reload if new bibliography paths are used
-    if(!all(absolute_yaml_bib_file == getOption("citr.bibliography_path")) & (!betterbiblatex | !use_betterbiblatex)) {
+    if(
+      !all(absolute_yaml_bib_file == getOption("citr.bibliography_path")) &
+      (!betterbiblatex | !use_betterbiblatex)
+    ) {
       options(citr.bibliography_path = absolute_yaml_bib_file)
       options(citr.bibliography_cache = NULL)
     }
@@ -150,39 +175,46 @@ insert_citation <- function(
 
   server <- function(input, output, session) {
 
-    reactive_variables <- reactiveValues(reload_bib = "init", use_betterbiblatex = use_betterbiblatex, zotero_options = FALSE) # Set initial value
+    # Set initial value
+    reactive_variables <- reactiveValues(
+      reload_bib = "init"
+      , use_betterbiblatex = use_betterbiblatex
+      , show_zotero_options = FALSE
+    )
 
     # Zotero use
     observeEvent(input$disconnect_zotero, {
       options(citr.use_betterbiblatex = FALSE)
       reactive_variables$use_betterbiblatex <- FALSE
 
-      ## Discard cache
-      options(citr.bibliography_cache = NULL)
-      reactive_variables$reload_bib <- paste0(sample(letters, 100, replace = TRUE), collapse = "") # Do stuff to trigger reload_bib reactive
+      reactive_variables <- discard_cache(reactive_variables)
     })
 
     observeEvent(input$connect_zotero, {
       options(citr.use_betterbiblatex = TRUE)
       reactive_variables$use_betterbiblatex <- TRUE
 
-      ## Discard cache
-      options(citr.bibliography_cache = NULL)
-      reactive_variables$reload_bib <- paste0(sample(letters, 100, replace = TRUE), collapse = "") # Do stuff to trigger reload_bib reactive
+      reactive_variables <- discard_cache(reactive_variables)
     })
 
     observeEvent(input$zotero_toggle_options, {
-      reactive_variables$zotero_options <- !reactive_variables$zotero_options
+      reactive_variables$show_zotero_options <- !reactive_variables$show_zotero_options
     })
 
     output$zotero_status <- renderUI({
       if(betterbiblatex) {
         if(reactive_variables$use_betterbiblatex) {
           helpText(
-            "Connected to Zotero."
-            , actionLink("discard_cache", if(length(bibliography()) == 0) "Load libraries" else "Reload libraries")
+            "Connected to Zotero:"
+            , actionLink(
+              "discard_cache"
+              , if(length(bibliography()) == 0) "Load libraries" else "Reload libraries"
+            )
             , "|"
-            , actionLink("zotero_toggle_options", if(!reactive_variables$zotero_options) "Select group libraries" else "Hide group libraries")
+            , actionLink(
+              "zotero_toggle_options"
+              , if(!reactive_variables$show_zotero_options) "Select libraries" else "Hide libraries"
+            )
             , "|"
             , actionLink("disconnect_zotero", "Disconnect")
           )
@@ -197,109 +229,107 @@ insert_citation <- function(
 
     output$bbt_libraries <- renderUI({
       if(betterbiblatex) {
-        if(length(bbt_libraries_options) > 1 && reactive_variables$use_betterbiblatex && reactive_variables$zotero_options) {
-          checkboxGroupInput(
-            "zotero_groups"
-            , label = NULL
-            , choices = as.list(bbt_libraries_options)
-            , selected = bbt_libraries_options[!bbt_libraries_options %in% c(getOption("citr.exclude_betterbiblatex_library"), "citr_dummy")]
-            , inline = TRUE
-          )
-        } else NULL
-      }
-    })
-
-    output$bib_file <- renderUI({
-      if(is.null(yaml_bib_file)) {
-        div(
-          textInput(
-            ifelse(betterbiblatex && reactive_variables$use_betterbiblatex, "update_bib", "read_bib")
-            , ifelse(betterbiblatex && reactive_variables$use_betterbiblatex, "Bib(La)Tex file to update", "Bib(La)Tex file to read")
-            , value = bib_file
-            , width = 700
-          ),
-          helpText(
-            "YAML front matter missing or no bibliography file(s) specified."
-            , if(!betterbiblatex || !reactive_variables$use_betterbiblatex) actionLink("discard_cache", "Reload file")
-          )
+        zotero_groups_checkbox <- checkboxGroupInput(
+          "zotero_groups"
+          , label = NULL
+          , choices = as.list(bbt_libraries_options)
+          , selected = bbt_libraries_options[
+            !bbt_libraries_options %in% c(getOption("citr.exclude_betterbiblatex_library"), "citr_dummy")
+            ]
+          , inline = TRUE
         )
-      } else {
-        if(betterbiblatex && reactive_variables$use_betterbiblatex) {
-          div(
-            selectInput("update_bib", "Bib(La)Tex file to update", choices = yaml_choices),
-            helpText(bib_message)
-          )
-        } else {
-          helpText(
-            bib_message
-            , code(paste(yaml_bib_file, collapse = ", "))
-            , actionLink("discard_cache", "Reload file(s)")
-          )
+
+        if(
+          !length(bbt_libraries_options) > 1 ||
+          !reactive_variables$use_betterbiblatex ||
+          !reactive_variables$show_zotero_options
+        ) {
+          zotero_groups_checkbox$attribs$style <- "display:none;"
         }
+
+        zotero_groups_checkbox
       }
     })
 
-    output$read_error <- renderText({
-      validate(need(!(is.character(bibliography()) && grepl("^Error: ", bibliography())), bibliography()))
-    })
 
     # Discard cache reactive
     observeEvent(input$discard_cache, {
-      options(citr.bibliography_cache = NULL)
-      reactive_variables$reload_bib <- paste0(sample(letters, 100, replace = TRUE), collapse = "") # Do stuff to trigger reload_bib reactive
+      reactive_variables <- discard_cache(reactive_variables)
     })
+
     reload_bib <- reactive({reactive_variables$reload_bib})
+
 
     # Load bibliography
     bibliography <- reactive({
       trigger <- reload_bib() # Triggers reactive when event link is clicked
+
+      bib_file_specified <- !is.null(input$read_bib)
+      bib_files_known <- all(input$read_bib == getOption("citr.bibliography_path"))
+
+      # Discard cache
       if(
-        (!is.null(input$read_bib) && !(all(input$read_bib == getOption("citr.bibliography_path")))) ||
-        !reactive_variables$use_betterbiblatex #&& !is.null(input$update_bib) && !(all(input$update_bib == getOption("citr.bibliography_path"))))
+        (bib_file_specified && !bib_files_known) &&
+        !reactive_variables$use_betterbiblatex
       ) {
         options(citr.bibliography_cache = NULL)
       }
 
       # Use cached bibliography, if available
+      cached_bibliography <- getOption("citr.bibliography_cache")
+
       if(
-        is.null(getOption("citr.bibliography_cache")) || (is.character(getOption("citr.bibliography_cache")) && grepl("^Error: ", getOption("citr.bibliography_cache"))) #||
-        # (!is.null(yaml_bib_file) && !isTRUE(all.equal(absolute_yaml_bib_file, getOption("citr.bibliography_path"))))
+        !is.null(cached_bibliography) &&
+        !check_for_errorneous_bib_cache(cached_bibliography)
       ) {
-        shiny::withProgress({
-          if(betterbiblatex && reactive_variables$use_betterbiblatex) {
+        current_bib <- cached_bibliography
+      } else {
 
-            if(!is.null(input$update_bib)) options(citr.bibliography_path = input$update_bib)
+        if(betterbiblatex && reactive_variables$use_betterbiblatex) {
 
-            if(reactive_variables$reload_bib == "init") {
-              current_bib <- c()
-            } else {
-              exclude_betterbiblatex_library <- c(bbt_libraries_options[!bbt_libraries_options %in% input$zotero_groups], "citr_dummy")
+          if(!is.null(input$update_bib)) {
+            options(citr.bibliography_path = input$update_bib)
+          }
 
-              options("citr.exclude_betterbiblatex_library" = exclude_betterbiblatex_library)
+          if(reactive_variables$reload_bib == "init") { # Don't load Zotero bibs automatically
+            current_bib <- c()
+          } else {
+            # Update list of bibs to exclude
+            exclude_betterbiblatex_library <- c(
+              bbt_libraries_options[!bbt_libraries_options %in% input$zotero_groups]
+              , "citr_dummy"
+            )
+            options("citr.exclude_betterbiblatex_library" = exclude_betterbiblatex_library)
 
-              if(!all(bbt_libraries_options %in% exclude_betterbiblatex_library)) {
+            # Load remaining bibs
+            if(!all(bbt_libraries_options %in% exclude_betterbiblatex_library)) {
+              shiny::withProgress({
                 current_bib <- load_betterbiblatex_bib(
                   encoding = encoding
                   , betterbiblatex_format = betterbiblatex_format
                   , exclude_betterbiblatex_library = exclude_betterbiblatex_library
                   , increment_progress = TRUE
                 )
-              } else {
-                current_bib <- c()
-              }
+              }, message = "Loading Zotero libraries...")
+            } else {
+              current_bib <- c()
             }
+          }
 
-          } else {
+        } else {
+          shiny::withProgress({
             if(is.null(yaml_bib_file)) { # Use specified bibliography
 
-              if(!is.null(input$read_bib)) {
+              if(bib_file_specified) {
                 options(citr.bibliography_path = input$read_bib)
                 setProgress(detail = input$read_bib)
-                current_bib <- tryCatch(RefManageR::ReadBib(file = input$read_bib, check = FALSE, .Encoding = encoding), error = error_handler)
+                bib_to_read <- input$read_bib
               } else {
                 setProgress(detail = getOption("citr.bibliography_path"))
-                current_bib <- tryCatch(RefManageR::ReadBib(file = getOption("citr.bibliography_path"), check = FALSE, .Encoding = encoding), error = error_handler)
+                bib_to_read <- getOption("citr.bibliography_path")
               }
+
+              current_bib <- read_bib_catch_error(bib_to_read, encoding)
 
             } else if(!is.null(yaml_bib_file)) { # Use YAML bibliography, if available
 
@@ -307,27 +337,31 @@ insert_citation <- function(
 
               if(length(yaml_bib_file) == 1) {
                 setProgress(detail = basename(absolute_yaml_bib_file))
-                current_bib <- tryCatch(RefManageR::ReadBib(file = absolute_yaml_bib_file, check = FALSE, .Encoding = encoding), error = error_handler)
+                current_bib <- read_bib_catch_error(absolute_yaml_bib_file, encoding)
               } else {
                 bibs <- lapply(absolute_yaml_bib_file, function(file) {
                   setProgress(detail = basename(file))
-                  tryCatch(RefManageR::ReadBib(file, check = FALSE, .Encoding = encoding), error = error_handler)
+                  read_bib_catch_error(file, encoding)
                   shiny::incProgress(1/length(absolute_yaml_bib_file))
                   })
 
                 ## Merge if multiple bib files were imported succesfully
                 not_found <- sapply(bibs, is.null)
-                if(any(not_found)) warning("Unable to read bibliography file(s) ", paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", "))
+                if(any(not_found)) {
+                  warning(
+                    "Unable to read bibliography file(s) "
+                    , paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", ")
+                  )
+                }
                 current_bib <- do.call(c, bibs[!not_found])
               }
             }
-          }
-        }, message = "Loading Zotero libraries...")
+          }, message = "Loading bibliography file(s)...")
+        }
+
 
         ## Cache bibliography
         options(citr.bibliography_cache = current_bib)
-      } else {
-        current_bib <- getOption("citr.bibliography_cache")
       }
 
       current_bib
@@ -336,15 +370,44 @@ insert_citation <- function(
     ## Update items in selection list
     observe({
       citation_keys <- names(bibliography())
+      cached_citation_keys <- getOption("citr.citation_key_cache")
 
       if(length(citation_keys > 0)) {
-        current_references <- paste_references(bibliography())
-        citation_keys <- citation_keys[order(current_references)]
-        names(citation_keys) <- current_references[order(current_references)]
+        if(
+          is.null(cached_citation_keys) ||
+          length(setdiff(citation_keys, cached_citation_keys)) != 0
+        ) {
+          shiny::withProgress({
+            current_references <- paste_references(bibliography())
+            incProgress(1/4)
+            citation_keys <- citation_keys[order(current_references)]
+            incProgress(1/4)
+            names(citation_keys) <- current_references[order(current_references)]
+            incProgress(1/4)
+            options(citr.citation_key_cache = citation_keys)
+            incProgress(1/4)
+          }
+          , message = "Indexing bibliography..."
+          )
+        } else {
+          citation_keys <- getOption("citr.citation_key_cache")
+        }
 
-        updateSelectInput(session, "selected_key", choices = c("Search terms" = "", citation_keys), label = "")
+        updateSelectInput(
+          session
+          , "selected_key"
+          , choices = c("Search terms" = "", citation_keys)
+          , label = ""
+        )
       } else {
-        selected_key_default <- if(betterbiblatex && reactive_variables$use_betterbiblatex) c("No citations found. (Re-)Load Zotero libraries." = "") else c(".bib-file(s) not found" = "")
+        if(
+          betterbiblatex &&
+          reactive_variables$use_betterbiblatex
+        ) {
+          selected_key_default <- c("No references found. (Re-)Load Zotero libraries." = "")
+        } else {
+          selected_key_default <- c(".bib-file(s) not found" = "")
+        }
         updateSelectInput(session, "selected_key", selected_key_default, label = "")
       }
     })
@@ -352,18 +415,26 @@ insert_citation <- function(
     # Create citation based on current selection
     current_key <- reactive({
       if(length(input$selected_key) > 1 & input$in_paren) {
-        paste_citation_keys(input$selected_key[order(input$selected_key)], input$in_paren)
+        paste_citation_keys(
+          input$selected_key[order(input$selected_key)]
+          , input$in_paren
+        )
       } else {
-        paste_citation_keys(input$selected_key, input$in_paren)
+        paste_citation_keys(
+          input$selected_key
+          , input$in_paren
+        )
       }
     })
-    output$rendered_key <- renderText({if(!is.null(current_key())) current_key() else "No reference selected."})
+    output$rendered_key <- renderText(
+      {if(!is.null(current_key())) current_key() else "No reference selected."}
+    )
 
     new_entries <- reactive({
       if(betterbiblatex && reactive_variables$use_betterbiblatex) {
         if(file.exists(input$update_bib)) {
 
-          existing_bib <- tryCatch(RefManageR::ReadBib(input$update_bib, check = FALSE, .Encoding = encoding), error = error_handler)
+          existing_bib <- read_bib_catch_error(input$update_bib, encoding)
           if(length(existing_bib) > 0) {
             new_references <- !input$selected_key %in% names(existing_bib)
           } else {
@@ -371,7 +442,8 @@ insert_citation <- function(
           }
 
           if(length(input$selected_key) > 0 && sum(new_references) > 0) {
-            return(bibliography()[key = paste0("^", input$selected_key[new_references], "$", collapse = "|")])
+            new_bib_key <- paste0("^", input$selected_key[new_references], "$", collapse = "|")
+            return(bibliography()[key = new_bib_key])
           } else return(NULL)
 
         } else {
@@ -386,15 +458,78 @@ insert_citation <- function(
       , {
         # Update bib file
         if(betterbiblatex && reactive_variables$use_betterbiblatex) {
-          if(!is.null(new_entries())) RefManageR::WriteBib(new_entries(), file = input$update_bib, append = TRUE)
+          if(!is.null(new_entries())) {
+            RefManageR::WriteBib(
+              new_entries()
+              , file = input$update_bib
+              , append = TRUE
+            )
+          }
         }
 
         # Insert citation
-        if(!(current_key() %in% c("[@]", "@"))) rstudioapi::insertText(text = current_key(), id = context$id)
+        if(!(current_key() %in% c("[@]", "@"))) {
+          rstudioapi::insertText(text = current_key(), id = context$id)
+        }
         invisible(stopApp())
       }
     )
+
+
+    output$bib_file <- renderUI({
+      if(is.null(yaml_bib_file)) {
+        div(
+          textInput(
+            ifelse(
+              betterbiblatex && reactive_variables$use_betterbiblatex
+              , "update_bib"
+              , "read_bib"
+            )
+            , ifelse(
+              betterbiblatex && reactive_variables$use_betterbiblatex
+              , "Bib(La)Tex file to update"
+              , "Bib(La)Tex file to read"
+            )
+            , value = bib_file
+            , width = 700
+          ),
+          helpText(
+            "YAML front matter missing or no bibliography file(s) specified."
+            , if(!betterbiblatex || !reactive_variables$use_betterbiblatex) {
+              actionLink("discard_cache", "Reload file")
+            }
+          )
+        )
+      } else {
+        if(betterbiblatex && reactive_variables$use_betterbiblatex) {
+          div(
+            selectInput(
+              "update_bib"
+              , "Bib(La)Tex file to update"
+              , choices = yaml_choices
+            ),
+            helpText(bib_message)
+          )
+        } else {
+          helpText(
+            bib_message
+            , code(paste(yaml_bib_file, collapse = ", "))
+            , actionLink("discard_cache", "Reload file(s)")
+          )
+        }
+      }
+    })
+
+    output$read_error <- renderText({
+      validate(
+        need(
+          !check_for_errorneous_bib_cache(bibliography())
+          , bibliography()
+        )
+      )
+    })
   }
+
 
   viewer <- dialogViewer("Insert citation", width = 600, height = 500)
   runGadget(ui, server, viewer = viewer)
@@ -416,6 +551,50 @@ stableColumnLayout <- function(...) {
 error_handler <- function(x) {
   if(x$message != "unable to open file to read") {
     error_message <- print(x)
-    paste("Error: Failed to read Bib(La)TeX-file\n\n", error_message, "\n")
+    paste(
+      "Error in RefManageR::ReadBib(): Failed to read Bib(La)TeX-file\n\n"
+      , error_message
+      , "\n"
+    )
   }
+}
+
+## Let's hope this doesn't cause too much trouble; this is a lot more
+## sofisticated in rmarkdown, but the functions are not exported.
+get_bib_from_yaml <- function(yaml_delimiters, file_contents, bib_file = NULL) {
+  if(
+    length(yaml_delimiters) >= 2 &&
+    (yaml_delimiters[2] - yaml_delimiters[1] > 1) &&
+    grepl("^---\\s*$", file_contents[yaml_delimiters[1]])
+  ) {
+    yaml_front_matter <- paste(
+      file_contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)]
+      , collapse = "\n"
+    )
+    c(bib_file, yaml::yaml.load(yaml_front_matter)$bibliography)
+  } else {
+    NULL
+  }
+}
+
+# Create randomness to trigger reloading bib reactive
+make_hash <- function() {
+  paste0(sample(letters, 100, replace = TRUE), collapse = "")
+}
+
+discard_cache <- function(x) {
+  options(citr.bibliography_cache = NULL)
+  x$reload_bib <- make_hash()
+  x
+}
+
+check_for_errorneous_bib_cache <- function(x) {
+  is.character(x) && grepl("^Error: ", x)
+}
+
+read_bib_catch_error <- function(x, encoding) {
+  tryCatch(
+    RefManageR::ReadBib(x, check = FALSE, .Encoding = encoding)
+    , error = error_handler
+  )
 }
