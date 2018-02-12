@@ -30,7 +30,7 @@ tidy_bib_file <- function(
 
   rmd <- c()
   for(i in seq_along(rmd_file)) {
-    rmd <- paste(c(rmd, readLines(rmd_file, encoding = encoding)), collapse = " ")
+    rmd <- paste(c(rmd, readLines(rmd_file, encoding = encoding, warn = FALSE)), collapse = " ")
   }
 
   if(nchar(rmd) == 0){
