@@ -151,6 +151,17 @@ betterbiblatex_available <- function() {
   )
 }
 
+#' Load bibliography from Zotero
+#' 
+#' @inheritParams query_bib
+#' 
+#' This function loads into RAM the bibliography stored in Zotero.
+#' May take a several seconds if you have many hundreds of references.
+#' 
+#' @export
+#' @examples \dontrun{
+#' b <- load_betterbiblatex_bib(encoding = "UTF-8")
+#' }
 load_betterbiblatex_bib <- function(
   encoding
   , betterbiblatex_format = "bibtex"
