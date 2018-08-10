@@ -4,7 +4,8 @@
 \alias{query_bib}
 \title{Query bibliography}
 \usage{
-query_bib(x, bib_file = getOption("citr.bibliography_path"), cache = TRUE,
+query_bib(x, bib_file = getOption("citr.bibliography_path"),
+  cache = TRUE,
   use_betterbiblatex = getOption("citr.use_betterbiblatex"),
   betterbiblatex_format = getOption("citr.betterbiblatex_format"),
   exclude_betterbiblatex_library = getOption("citr.exclude_betterbiblatex_library"),
