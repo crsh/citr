@@ -153,6 +153,10 @@ betterbiblatex_available <- function() {
 
 #' Load bibliography from Zotero
 #' 
+#' @param increment_progress logical switch which will use the shiny function \code{incProgress} when \code{TRUE}.
+#' \code{FALSE} by default.
+#' @inheritParams query_bib
+#' @inheritParams tidy_bib_file
 #' @inheritParams query_bib
 #' 
 #' This function loads into RAM the bibliography stored in Zotero.
