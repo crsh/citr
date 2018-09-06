@@ -4,8 +4,9 @@
 \alias{md_cite}
 \title{Insert citation in Markdown format}
 \usage{
-md_cite(x, in_paren = TRUE, bib_file = getOption("citr.bibliography_path"),
-  cache = TRUE, use_betterbiblatex = getOption("citr.use_betterbiblatex"),
+md_cite(x, in_paren = TRUE,
+  bib_file = getOption("citr.bibliography_path"), cache = TRUE,
+  use_betterbiblatex = getOption("citr.use_betterbiblatex"),
   encoding = getOption("citr.encoding"))
 }
 \arguments{
