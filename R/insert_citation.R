@@ -470,6 +470,9 @@ insert_citation <- function(
         # Update bib file
         if(betterbiblatex && reactive_variables$use_betterbiblatex) {
           if(!is.null(new_entries())) {
+            # This is equivalent to check = FALSE for c.BibEntry()
+            old_BibOptions <- RefManageR::BibOptions(check.entries = FALSE)
+
             RefManageR::WriteBib(
               new_entries()
               , file = input$update_bib
@@ -477,8 +480,6 @@ insert_citation <- function(
             )
             options(citr.bib_file_last_modified = file.info(input$update_bib)$mtime)
 
-            # This is equivalent to check = FALSE for c.BibEntry()
-            old_BibOptions <- RefManageR::BibOptions(check.entries = FALSE)
             options(
               citr.bib_file_cache = c(
                 getOption("citr.bib_file_cache")
