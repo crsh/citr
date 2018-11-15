@@ -61,7 +61,7 @@ insert_citation <- function(
   # Get bibliography files from YAML front matter if available
   if(context$path == "") {
     message(
-      "\nUnsaved R Markdown document: Cannot locate Bib(La)TeX file(s);
+      "\nUnsaved R Markdown document: Cannot locate bibliography files;
          falling back to manual path specification.\n"
     )
     yaml_bib_file <- NULL
@@ -111,13 +111,13 @@ insert_citation <- function(
       , sep = "/"
     )
 
-    if(betterbiblatex && use_betterbiblatex) {
+    # if(betterbiblatex && use_betterbiblatex) {
       yaml_choices <- absolute_yaml_bib_file
       names(yaml_choices) <- yaml_bib_file
-    }
+    # }
 
     bib_message <- paste0(
-      "Bibliography file(s) found in YAML front matter"
+      "Bibliography files found in YAML front matter"
       , ifelse(
         exists("parent_document")
         , paste0(" of '", candidate_parents[parents], "'")
@@ -136,40 +136,103 @@ insert_citation <- function(
   }
 
   ui <- miniPage(
-    miniContentPanel(
-
-      tags$head(
-        tags$style(HTML("
+    shinyjs::useShinyjs(),
+    tags$head(
+      tags$style(HTML("
           .shiny-output-error-validation {
             color: red;
             font-weight: bold;
           }
-        "))
-      ),
+        ")),
+      tags$script(
+        type = "text/javascript"
+        , "focus_searchbox = function() {
+            	let select = $('#selected_key').selectize();
+            	select[0].selectize.focus();
+            };
+        ")
+    ),
 
-      stableColumnLayout(
-        selectizeInput(
-          "selected_key"
-          , choices = c("No references found" = "")
-          , label = ""
-          , width = 700
-          , multiple = TRUE
+    miniTabstripPanel(
+      id = "tabs"
+      , miniTabPanel(
+        title = "Insert citation"
+        , icon = icon("paste")
+        , miniContentPanel(
+
+          selectizeInput(
+            "selected_key"
+            , choices = c("No bibliography found" = "")
+            , label = ""
+            , width = "100%"
+            , multiple = TRUE
+          ),
+          verbatimTextOutput("rendered_key"),
+          stableColumnLayout(
+            checkboxInput("in_paren", "In parentheses", value = TRUE),
+            div(
+              align = "right"
+              , miniTitleBarButton("done", "  Insert citation  ", primary = TRUE)
+              , miniTitleBarCancelButton()
+            )
+          ),
+          hr(),
+          uiOutput("bib_file"),
+          uiOutput("zotero_status"),
+          uiOutput("read_error")
         )
-      ),
-      verbatimTextOutput("rendered_key"),
-      stableColumnLayout(
-        checkboxInput("in_paren", "In parentheses", value = TRUE),
-        div(
-          align = "right"
-          , miniTitleBarButton("done", "  Insert citation  ", primary = TRUE)
-          , miniTitleBarCancelButton()
+      )
+      # , miniTabPanel(
+      #   "Search Zotero"
+      #   , icon = icon("link")
+      #   , NULL
+      # )
+      , miniTabPanel(
+        title = "Settings"
+        , icon = icon("cog")
+        , miniContentPanel(
+          stableColumnLayout(
+            div(
+              selectizeInput(
+                inputId = "parent_documents"
+                , label = "Possible parent document names"
+                , choices = as.list(getOption("citr.parent_documents"))
+                , selected = getOption("citr.parent_documents")
+                , multiple = TRUE
+                , options = list(create = TRUE)
+              )
+            ),
+            selectizeInput(
+              inputId = "bib_encoding"
+              , label = "Bibliography file encoding"
+              , choices = iconvlist()
+              , selected = getOption("citr.encoding")
+              , multiple = FALSE
+            )
+          ),
+          hr(),
+          h4("Zotero connection"),
+          # checkboxInput(
+          #   inputId = "use_bbt"
+          #   , label = "Search Zotero database"
+          #   , value = getOption("citr.use_betterbiblatex")
+          # ),
+          helpText("Requires the Better Bib(La)TeX extension and Zotero to run."),
+          stableColumnLayout(
+            uiOutput("bbt_libraries"),
+            div(
+              uiOutput("zotero_bib_file"),
+              radioButtons(
+                inputId = "bbt_format"
+                , label = NULL # "References format"
+                , choices = list("BibTeX" = "bibtex", "BibLaTeX" = "biblatex")
+                , selected = getOption("citr.betterbiblatex_format")
+                , inline = TRUE
+              )
+            )
+          )
         )
-      ),
-      hr(),
-      uiOutput("bib_file"),
-      uiOutput("zotero_status"),
-      uiOutput("read_error"),
-      uiOutput("bbt_libraries")
+      )
     )
   )
 
@@ -179,7 +242,7 @@ insert_citation <- function(
     reactive_variables <- reactiveValues(
       reload_bib = "init"
       , use_betterbiblatex = use_betterbiblatex
-      , show_zotero_options = FALSE
+      , exclude_betterbiblatex_library = getOption("citr.exclude_betterbiblatex_library")
     )
 
     # Zotero use
@@ -197,63 +260,91 @@ insert_citation <- function(
       reactive_variables <- discard_cache(reactive_variables)
     })
 
-    observeEvent(input$zotero_toggle_options, {
-      reactive_variables$show_zotero_options <- !reactive_variables$show_zotero_options
+    observeEvent(input$switch_to_preferences, {
+      updateTabsetPanel(
+        session
+        , inputId = "tabs"
+        , selected = "Settings"
+      )
+    })
+
+    observeEvent(input$zotero_groups, {
+      new_excludes <- bbt_libraries_options[!bbt_libraries_options %in% input$zotero_groups]
+      options("citr.exclude_betterbiblatex_library" = new_excludes)
+      reactive_variables$exclude_betterbiblatex_library <- new_excludes
     })
 
     output$zotero_status <- renderUI({
       if(betterbiblatex) {
         if(reactive_variables$use_betterbiblatex) {
           helpText(
-            "Connected to Zotero:"
-            , actionLink(
-              "discard_cache"
-              , if(length(bibliography()) == 0) "Load libraries" else "Reload libraries"
-            )
-            , "|"
-            , actionLink(
-              "zotero_toggle_options"
-              , if(!reactive_variables$show_zotero_options) "Select libraries" else "Hide libraries"
-            )
+            "Connected to Zotero"
+            , if(length(bbt_libraries_options[!bbt_libraries_options %in% reactive_variables$exclude_betterbiblatex_library]) > 0) {
+              list(
+                "libraries"
+                , code(paste(bbt_libraries_options[!bbt_libraries_options %in% reactive_variables$exclude_betterbiblatex_library], collapse = ", "))
+                , ". References are added to"
+                , code(paste(yaml_bib_file, collapse = ", "))
+                , "."
+                  # , actionLink("switch_to_preferences", "Select file")
+                , actionLink("discard_cache2", "Reload libraries")
+              )
+            } else {
+              actionLink("switch_to_preferences", "Select libraries")
+            }
             , "|"
             , actionLink("disconnect_zotero", "Disconnect")
           )
         } else {
           helpText(
-            "Not connected to Zotero."
-            , actionLink("connect_zotero", "Connect")
+            "Zotero connection available."
+            , actionLink("connect_zotero", "Connect and load libraries")
           )
         }
       }
     })
 
     output$bbt_libraries <- renderUI({
-      if(betterbiblatex) {
-        zotero_groups_checkbox <- checkboxGroupInput(
-          "zotero_groups"
-          , label = NULL
-          , choices = as.list(bbt_libraries_options)
-          , selected = bbt_libraries_options[
-            !bbt_libraries_options %in% c(getOption("citr.exclude_betterbiblatex_library"), "citr_dummy")
-            ]
-          , inline = TRUE
-        )
+      # if(betterbiblatex) {
+      #   zotero_groups_checkbox <- checkboxGroupInput(
+      #     "zotero_groups"
+      #     , label = "Zotero libraries to load"
+      #     , choices = as.list(bbt_libraries_options)
+      #     , selected = bbt_libraries_options[
+      #       !bbt_libraries_options %in% c(getOption("citr.exclude_betterbiblatex_library"), "citr_dummy")
+      #       ]
+      #     , inline = TRUE
+      #   )
+      #
+      #   if(
+      #     !length(bbt_libraries_options) > 1 ||
+      #     !reactive_variables$use_betterbiblatex ||
+      #     !reactive_variables$show_zotero_options
+      #   ) {
+      #     zotero_groups_checkbox$attribs$style <- "display:none;"
+      #   }
+      #
+      #   zotero_groups_checkbox
+      # }
 
-        if(
-          !length(bbt_libraries_options) > 1 ||
-          !reactive_variables$use_betterbiblatex ||
-          !reactive_variables$show_zotero_options
-        ) {
-          zotero_groups_checkbox$attribs$style <- "display:none;"
-        }
-
-        zotero_groups_checkbox
-      }
+      selectizeInput(
+        "zotero_groups"
+        , label = "Zotero libraries to load"
+        , choices = as.list(bbt_libraries_options)
+        , selected = bbt_libraries_options[
+          !bbt_libraries_options %in% getOption("citr.exclude_betterbiblatex_library")
+          ]
+        , multiple = TRUE
+      )
     })
 
 
     # Discard cache reactive
     observeEvent(input$discard_cache, {
+      reactive_variables <- discard_cache(reactive_variables)
+    })
+
+    observeEvent(input$discard_cache2, { # Required to avoid conflict between reload files and reload libraries
       reactive_variables <- discard_cache(reactive_variables)
     })
 
@@ -291,30 +382,30 @@ insert_citation <- function(
             options(citr.bibliography_path = input$update_bib)
           }
 
-          if(reactive_variables$reload_bib == "init") { # Don't load Zotero bibs automatically
-            current_bib <- c()
-          } else {
-            # Update list of bibs to exclude
-            exclude_betterbiblatex_library <- c(
-              bbt_libraries_options[!bbt_libraries_options %in% input$zotero_groups]
-              , "citr_dummy"
-            )
-            options("citr.exclude_betterbiblatex_library" = exclude_betterbiblatex_library)
+          # if(reactive_variables$reload_bib == "init") { # Don't load Zotero bibs automatically
+          #   current_bib <- c()
+          # } else {
+            # # Update list of bibs to exclude
+            # reactive_variables$exclude_betterbiblatex_library <- c(
+            #   bbt_libraries_options[!bbt_libraries_options %in% input$zotero_groups]
+            #   , "citr_dummy"
+            # )
+            # options("citr.exclude_betterbiblatex_library" = reactive_variables$exclude_betterbiblatex_library)
 
             # Load remaining bibs
-            if(!all(bbt_libraries_options %in% exclude_betterbiblatex_library)) {
+            if(!all(bbt_libraries_options %in% reactive_variables$exclude_betterbiblatex_library)) {
               shiny::withProgress({
                 current_bib <- load_betterbiblatex_bib(
                   encoding = encoding
                   , betterbiblatex_format = betterbiblatex_format
-                  , exclude_betterbiblatex_library = exclude_betterbiblatex_library
+                  , exclude_betterbiblatex_library = reactive_variables$exclude_betterbiblatex_library
                   , increment_progress = TRUE
                 )
               }, message = "Loading Zotero libraries...")
             } else {
               current_bib <- c()
             }
-          }
+          # }
 
         } else {
           shiny::withProgress({
@@ -349,14 +440,14 @@ insert_citation <- function(
                 not_found <- sapply(bibs, is.null)
                 if(any(not_found)) {
                   warning(
-                    "Unable to read bibliography file(s) "
+                    "Unable to read bibliography files "
                     , paste(paste0("'", yaml_bib_file[not_found], "'"), collapse = ", ")
                   )
                 }
                 current_bib <- do.call(c, bibs[!not_found])
               }
             }
-          }, message = "Loading bibliography file(s)...")
+          }, message = "Loading bibliography files...")
         }
 
 
@@ -393,12 +484,13 @@ insert_citation <- function(
           citation_keys <- getOption("citr.citation_key_cache")
         }
 
-        updateSelectInput(
+        updateSelectizeInput(
           session
           , "selected_key"
-          , choices = c("Search terms" = "", citation_keys)
+          , choices = c("Search references" = "", citation_keys)
           , label = ""
         )
+
       } else {
         if(
           betterbiblatex &&
@@ -406,9 +498,17 @@ insert_citation <- function(
         ) {
           selected_key_default <- c("No references found. (Re-)Load Zotero libraries." = "")
         } else {
-          selected_key_default <- c(".bib-file(s) not found" = "")
+          selected_key_default <- c("Bibliography files not found" = "")
         }
-        updateSelectInput(session, "selected_key", selected_key_default, label = "")
+        updateSelectizeInput(session, "selected_key", selected_key_default, label = "")
+      }
+    })
+
+    observe({
+      citation_keys <- names(bibliography())
+
+      if(length(citation_keys > 0)) {
+        shinyjs::delay(100, shinyjs::runjs("focus_searchbox();"))
       }
     })
 
@@ -426,6 +526,7 @@ insert_citation <- function(
         )
       }
     })
+
     output$rendered_key <- renderText(
       {if(!is.null(current_key())) current_key() else "No reference selected."}
     )
@@ -497,26 +598,17 @@ insert_citation <- function(
       }
     )
 
-
     output$bib_file <- renderUI({
       if(is.null(yaml_bib_file)) {
         div(
           textInput(
-            ifelse(
-              betterbiblatex && reactive_variables$use_betterbiblatex
-              , "update_bib"
-              , "read_bib"
-            )
-            , ifelse(
-              betterbiblatex && reactive_variables$use_betterbiblatex
-              , "Bib(La)Tex file to update"
-              , "Bib(La)Tex file to read"
-            )
+            "read_bib"
+            , "Bibliography file to read"
             , value = bib_file
             , width = 700
           ),
           helpText(
-            "YAML front matter missing or no bibliography file(s) specified."
+            "YAML front matter missing or no bibliography files specified."
             , if(!betterbiblatex || !reactive_variables$use_betterbiblatex) {
               actionLink("discard_cache", "Reload file")
             }
@@ -524,22 +616,39 @@ insert_citation <- function(
         )
       } else {
         if(betterbiblatex && reactive_variables$use_betterbiblatex) {
-          div(
-            selectInput(
-              "update_bib"
-              , "Bib(La)Tex file to update"
-              , choices = yaml_choices
-              , selected = bib_file
-            ),
-            helpText(bib_message)
-          )
+          # helpText(
+          #   "References are added to"
+          #   , code(paste(yaml_bib_file, collapse = ", "))
+          #   # , actionLink("switch_to_preferences", "Select file")
+          # )
         } else {
           helpText(
             bib_message
             , code(paste(yaml_bib_file, collapse = ", "))
-            , actionLink("discard_cache", "Reload file(s)")
+            , actionLink("discard_cache", "Reload files")
           )
         }
+      }
+    })
+
+    output$zotero_bib_file <- renderUI({
+      if(is.null(yaml_bib_file)) {
+        div(
+          textInput(
+            inputId = "update_bib"
+            , label = "Add references to"
+            , value = bib_file
+          ),
+          helpText("YAML front matter missing or no bibliography files specified.")
+        )
+      } else {
+        selectizeInput(
+          "update_bib"
+          , "Add references to"
+          , choices = yaml_choices
+          , selected = bib_file
+          , options = list(create = TRUE, sortField = "text")
+        )
       }
     })
 
@@ -551,6 +660,35 @@ insert_citation <- function(
         )
       )
     })
+
+    # Preferences
+    observeEvent(
+      input$parent_documents
+      , {
+        options("citr.parent_documents" = input$parent_documents)
+      }
+    )
+
+    observeEvent(
+      input$bib_encoding
+      , {
+        options("citr.encoding" = input$bib_encoding)
+      }
+    )
+
+    # observeEvent(
+    #   input$use_bbt
+    #   , {
+    #     reactive_variables$use_betterbiblatex <- input$use_bbt
+    #     options("citr.use_betterbiblatex" = input$use_bbt)
+    # })
+
+    observeEvent(
+      input$bbt_format
+      , {
+        options("citr.betterbiblatex_format" = input$bbt_format)
+      }
+    )
   }
 
 
@@ -606,6 +744,7 @@ make_hash <- function() {
 }
 
 discard_cache <- function(x) {
+  message("CHECK")
   options(citr.bibliography_cache = NULL)
   x$reload_bib <- make_hash()
   x

@@ -4,7 +4,7 @@
     citr.bibliography_path = "./references.bib"
     , citr.bibliography_cache = NULL
     , citr.citation_key_cache = NULL
-    , citr.use_betterbiblatex = TRUE
+    , citr.use_betterbiblatex = FALSE
     , citr.exclude_betterbiblatex_library = NULL
     , citr.betterbiblatex_format = "bibtex"
     , citr.bib_file_last_modified = Sys.time()
