@@ -703,7 +703,7 @@ insert_citation <- function(
   }
 
 
-  viewer <- dialogViewer("Insert citation", width = 600, height = 500)
+  viewer <- dialogViewer("Insert citation", width = 600, height = 420)
   runGadget(ui, server, viewer = viewer)
 }
 
