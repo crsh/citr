@@ -56,6 +56,8 @@ insert_citation <- function(
     bbt_libraries <- query_bbt_libraries()
     bbt_libraries_options <- unlist(bbt_libraries[, "name"])
     names(bbt_libraries_options) <- unlist(bbt_libraries[, "name"])
+  } else {
+    bbt_libraries_options <- NULL
   }
 
   # Get bibliography files from YAML front matter if available
@@ -284,7 +286,7 @@ insert_citation <- function(
                 "libraries"
                 , code(paste(bbt_libraries_options[!bbt_libraries_options %in% reactive_variables$exclude_betterbiblatex_library], collapse = ", "))
                 , ". References are added to"
-                , code(paste(yaml_bib_file, collapse = ", "))
+                , code(basename(c(input$update_bib, getOption("citr.update_bib"))[1]))
                 , "."
                   # , actionLink("switch_to_preferences", "Select file")
                 , actionLink("discard_cache2", "Reload libraries")
@@ -432,8 +434,9 @@ insert_citation <- function(
               } else {
                 bibs <- lapply(absolute_yaml_bib_file, function(file) {
                   setProgress(detail = basename(file))
-                  read_bib_catch_error(file, encoding)
+                  bib <- read_bib_catch_error(file, encoding)
                   shiny::incProgress(1/length(absolute_yaml_bib_file))
+                  bib
                   })
 
                 ## Merge if multiple bib files were imported succesfully
@@ -534,13 +537,13 @@ insert_citation <- function(
     new_entries <- reactive({
       shiny::withProgress({
         if(betterbiblatex && reactive_variables$use_betterbiblatex) {
-          if(file.exists(input$update_bib)) {
+          if(file.exists(getOption("citr.update_bib"))) {
 
             if(
-              file.info(input$update_bib)$mtime != getOption("citr.bib_file_last_modified") ||
+              file.info(getOption("citr.update_bib"))$mtime != getOption("citr.bib_file_last_modified") ||
               is.null(getOption("citr.bib_file_cache"))
             ) {
-              existing_bib <- read_bib_catch_error(input$update_bib, encoding)
+              existing_bib <- read_bib_catch_error(getOption("citr.update_bib"), encoding)
               options(citr.bib_file_cache = existing_bib)
             } else {
               existing_bib <- getOption("citr.bib_file_cache")
@@ -576,10 +579,10 @@ insert_citation <- function(
 
             RefManageR::WriteBib(
               new_entries()
-              , file = input$update_bib
+              , file = getOption("citr.update_bib")
               , append = TRUE
             )
-            options(citr.bib_file_last_modified = file.info(input$update_bib)$mtime)
+            options(citr.bib_file_last_modified = file.info(getOption("citr.update_bib"))$mtime)
 
             options(
               citr.bib_file_cache = c(
@@ -638,7 +641,7 @@ insert_citation <- function(
           textInput(
             inputId = "update_bib"
             , label = "Add references to"
-            , value = bib_file
+            , value = getOption("citr.update_bib")
           ),
           helpText("YAML front matter missing or no bibliography files specified.")
         )
@@ -646,8 +649,8 @@ insert_citation <- function(
         selectizeInput(
           "update_bib"
           , "Add references to"
-          , choices = yaml_choices
-          , selected = bib_file
+          , choices = unique(basename(c(yaml_choices, getOption("citr.update_bib"))))
+          , selected = basename(getOption("citr.update_bib"))
           , options = list(create = TRUE, sortField = "text")
         )
       }
@@ -690,6 +693,13 @@ insert_citation <- function(
         options("citr.betterbiblatex_format" = input$bbt_format)
       }
     )
+
+    observeEvent(
+      input$update_bib
+      , {
+        options("citr.update_bib" = input$update_bib)
+      }
+    )
   }
 
 
@@ -714,7 +724,7 @@ error_handler <- function(x) {
   if(x$message != "unable to open file to read") {
     error_message <- print(x)
     paste(
-      "Error in RefManageR::ReadBib(): Failed to read Bib(La)TeX-file\n\n"
+      "Error in RefManageR::ReadBib(): Failed to read bibliography file\n\n"
       , error_message
       , "\n"
     )
@@ -745,7 +755,6 @@ make_hash <- function() {
 }
 
 discard_cache <- function(x) {
-  message("CHECK")
   options(citr.bibliography_cache = NULL)
   x$reload_bib <- make_hash()
   x
@@ -756,8 +765,9 @@ check_for_errorneous_bib_cache <- function(x) {
 }
 
 read_bib_catch_error <- function(x, encoding) {
-  tryCatch(
+  bib <- tryCatch(
     RefManageR::ReadBib(x, check = FALSE, .Encoding = encoding)
     , error = error_handler
   )
+  bib
 }

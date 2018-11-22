@@ -9,6 +9,7 @@
     , citr.betterbiblatex_format = "bibtex"
     , citr.bib_file_last_modified = Sys.time()
     , citr.bib_file_cache = NULL
+    , citr.update_bib = "./references.bib"
     , citr.parent_documents = c("index.Rmd", "master.Rmd")
     , citr.encoding = "UTF-8"
   )
