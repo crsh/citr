@@ -36,9 +36,18 @@ insert_citation <- function(
   , encoding = getOption("citr.encoding")
 ) {
   assert_that(is.character(bib_file))
-  assert_that(is.flag(use_betterbiblatex))
-  assert_that(is.character(betterbiblatex_format))
-  assert_that(is.character(encoding))
+
+  if (!missing(encoding)) {
+    warning("Argument 'encoding' is deprecated; set the global option 'citr.encoding' instead.", call. = FALSE)
+  }
+
+  if (!missing(use_betterbiblatex)) {
+    warning("Argument 'use_betterbiblatex' is deprecated; set the global option 'citr.use_betterbiblatex' instead.", call. = FALSE)
+  }
+
+  if (!missing(betterbiblatex_format)) {
+    warning("Argument 'use_betterbiblatex' is deprecated; set the global option 'citr.betterbiblatex_format' instead.", call. = FALSE)
+  }
 
   if(rstudioapi::isAvailable("0.99.1111")) {
     context <- tryCatch(rstudioapi::getSourceEditorContext(), error = function(e) NULL)
@@ -94,7 +103,7 @@ insert_citation <- function(
       stop("More than one parent document found. See getOption('citr.parent_documents').")
     }
 
-    parent_document <- readLines(parents_path[parents], encoding = encoding, warn = FALSE)
+    parent_document <- readLines(parents_path[parents], encoding = getOption("citr.encoding"), warn = FALSE)
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     yaml_bib_file <- get_bib_from_yaml(
@@ -130,7 +139,7 @@ insert_citation <- function(
     # Reload if new bibliography paths are used
     if(
       !all(absolute_yaml_bib_file == getOption("citr.bibliography_path")) &
-      (!betterbiblatex | !use_betterbiblatex)
+      (!betterbiblatex | !getOption("citr.use_betterbiblatex"))
     ) {
       options(citr.bibliography_path = absolute_yaml_bib_file)
       options(citr.bibliography_cache = NULL)
@@ -243,7 +252,7 @@ insert_citation <- function(
     # Set initial value
     reactive_variables <- reactiveValues(
       reload_bib = "init"
-      , use_betterbiblatex = use_betterbiblatex
+      , use_betterbiblatex = getOption("citr.use_betterbiblatex")
       , exclude_betterbiblatex_library = getOption("citr.exclude_betterbiblatex_library")
     )
 
@@ -398,8 +407,8 @@ insert_citation <- function(
             if(!all(bbt_libraries_options %in% reactive_variables$exclude_betterbiblatex_library)) {
               shiny::withProgress({
                 current_bib <- load_betterbiblatex_bib(
-                  encoding = encoding
-                  , betterbiblatex_format = betterbiblatex_format
+                  encoding = getOption("citr.encoding")
+                  , betterbiblatex_format = getOption("citr.betterbiblatex_format")
                   , exclude_betterbiblatex_library = reactive_variables$exclude_betterbiblatex_library
                   , increment_progress = TRUE
                 )
@@ -422,7 +431,7 @@ insert_citation <- function(
                 bib_to_read <- getOption("citr.bibliography_path")
               }
 
-              current_bib <- read_bib_catch_error(bib_to_read, encoding)
+              current_bib <- read_bib_catch_error(bib_to_read, getOption("citr.encoding"))
 
             } else if(!is.null(yaml_bib_file)) { # Use YAML bibliography, if available
 
@@ -430,11 +439,11 @@ insert_citation <- function(
 
               if(length(yaml_bib_file) == 1) {
                 setProgress(detail = basename(absolute_yaml_bib_file))
-                current_bib <- read_bib_catch_error(absolute_yaml_bib_file, encoding)
+                current_bib <- read_bib_catch_error(absolute_yaml_bib_file, getOption("citr.encoding"))
               } else {
                 bibs <- lapply(absolute_yaml_bib_file, function(file) {
                   setProgress(detail = basename(file))
-                  bib <- read_bib_catch_error(file, encoding)
+                  bib <- read_bib_catch_error(file, getOption("citr.encoding"))
                   shiny::incProgress(1/length(absolute_yaml_bib_file))
                   bib
                   })
@@ -543,7 +552,7 @@ insert_citation <- function(
               file.info(getOption("citr.update_bib"))$mtime != getOption("citr.bib_file_last_modified") ||
               is.null(getOption("citr.bib_file_cache"))
             ) {
-              existing_bib <- read_bib_catch_error(getOption("citr.update_bib"), encoding)
+              existing_bib <- read_bib_catch_error(getOption("citr.update_bib"), getOption("citr.encoding"))
               options(citr.bib_file_cache = existing_bib)
             } else {
               existing_bib <- getOption("citr.bib_file_cache")
