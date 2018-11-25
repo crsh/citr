@@ -75,7 +75,7 @@ query_bib <- function(
   }
 
   pasted_bib <- paste_references(bib) # Create searchable text strings for references
-  entries <- bib[grepl(gsub("\\s", ".+", x), pasted_bib, ignore.case = TRUE)]
+  entries <- bib[grepl(gsub("\\s", ".+", x, useBytes = TRUE), pasted_bib, ignore.case = TRUE)]
   if(length(entries) > 0) entries else NULL
 }
 
@@ -124,9 +124,10 @@ paste_references <- function(bib) {
     }
   })
 
-  author_names <- gsub("\\}|\\{", "", author_names)
-  titles <- gsub("\\}|\\{|\\\\", "", bib$title)
-  titles <- gsub("\\n", " ", titles)
+  author_names <- gsub("\\}|\\{", "", author_names, useBytes = TRUE)
+  titles <- gsub("\\}|\\{|\\\\", "", bib$title, useBytes = TRUE)
+  titles <- gsub("\\n", " ", titles, useBytes = TRUE)
+  titles <- gsub("\\.+$", "", titles, useBytes = TRUE)
 
   # if author_names is null replace by title
   no_authors <- author_names == ""
@@ -134,7 +135,7 @@ paste_references <- function(bib) {
   titles <- paste0(" ", titles, ".")
   titles[no_authors] <- ""
 
-  journals <- gsub("\\}|\\{|\\\\", "", bib$journal)
+  journals <- gsub("\\}|\\{|\\\\", "", bib$journal, useBytes = TRUE)
   journals <- paste0(" ", journals, ifelse(journals != "", ".", NULL))
   journals[journals == " NULL."] <- ""
 

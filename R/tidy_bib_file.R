@@ -40,7 +40,7 @@ tidy_bib_file <- function(
   manuscript_test <- prep_text(rmd)
 
   reference_handles <- stringi::stri_extract_all(manuscript_test, regex = "@[^;\\s\\],]+")[[1]]
-  reference_handles <- gsub("@", "", unique(reference_handles))
+  reference_handles <- gsub("@", "", unique(reference_handles), useBytes = TRUE)
 
   if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
 
@@ -62,26 +62,35 @@ tidy_bib_file <- function(
 
 prep_text <- function(text){
 
+  # remove all line breaks, http://stackoverflow.com/a/21781150/1036500
+  text <- gsub("[\r\n]", " ", text)
+
   # don't include front yaml
-  text <- gsub("---.+?---", "", text)
+  text <- gsub("---.+?---", "", text, useBytes = TRUE)
 
   # don't include text in code chunks: https://regex101.com/#python
-  text <- gsub("```\\{.+?\\}.+?```", "", text)
+  text <- gsub("```\\{.+?\\}.+?```", "", text, useBytes = TRUE)
 
   # don't include text in in-line R code
-  text <- gsub("`r.+?`", "", text)
+  text <- gsub("`r.+?`", "", text, useBytes = TRUE)
 
   # don't include HTML comments
-  text <- gsub("<!--.+?-->", "", text)
+  text <- gsub("<!--.+?-->", "", text, useBytes = TRUE)
 
   # don't include inline markdown URLs
-  text <- gsub("\\(http.+?\\)", "", text)
+  text <- gsub("\\(http.+?\\)", "", text, useBytes = TRUE)
 
   # don't include images with captions
-  text <- gsub("!\\[.+?\\)", "", text)
+  text <- gsub("!\\[.+?\\)", "", text, useBytes = TRUE)
+
+  # don't include html tags
+  text <- gsub("<.+?>|</.+?>", "", text)
+
+  # don't include percent signs because they trip up stringi
+  text <- gsub("%", "", text)
 
   #remove cross-references
-  text <- gsub("\\\\@ref\\(.+?\\)", "", text)
+  text <- gsub("\\\\@ref\\(.+?\\)", "", text, useBytes = TRUE)
 
   text
 }
