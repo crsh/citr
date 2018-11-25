@@ -228,7 +228,7 @@ insert_citation <- function(
           #   , label = "Search Zotero database"
           #   , value = getOption("citr.use_betterbiblatex")
           # ),
-          helpText("Requires the Better Bib(La)TeX extension and Zotero to run."),
+          helpText(span("Requires the"), a("Better Bib(La)TeX", href = "https://github.com/retorquere/zotero-better-bibtex"), span("extension and Zotero to run.")),
           stableColumnLayout(
             uiOutput("bbt_libraries"),
             div(
