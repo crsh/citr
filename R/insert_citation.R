@@ -103,7 +103,7 @@ insert_citation <- function(
       stop("More than one parent document found. See getOption('citr.parent_documents').")
     }
 
-    parent_document <- readLines(parents_path[parents], encoding = getOption("citr.encoding"), warn = FALSE)
+    parent_document <- readLines(parents_path[parents], warn = FALSE)
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     yaml_bib_file <- get_bib_from_yaml(
@@ -207,7 +207,7 @@ insert_citation <- function(
               selectizeInput(
                 inputId = "parent_documents"
                 , label = "Possible parent document names"
-                , choices = as.list(getOption("citr.parent_documents"))
+                , choices = candidate_parents
                 , selected = getOption("citr.parent_documents")
                 , multiple = TRUE
                 , options = list(create = TRUE)
@@ -216,7 +216,7 @@ insert_citation <- function(
             selectizeInput(
               inputId = "bib_encoding"
               , label = "Bibliography file encoding"
-              , choices = iconvlist()
+              , choices = c("latin1", "UTF-8", "unkown")
               , selected = getOption("citr.encoding")
               , multiple = FALSE
             )
@@ -655,12 +655,46 @@ insert_citation <- function(
           helpText("YAML front matter missing or no bibliography files specified.")
         )
       } else {
+        update_bib_files <- c(yaml_bib_file, getOption("citr.update_bib"))
+        # names(update_bib_files) <- basename(update_bib_files)
+        # duplicated_basenames <- names(update_bib_files) %in% names(update_bib_files)[duplicated(names(update_bib_files))]
+        # if(any(duplicated_basenames)) {
+          # update_bib_names <- names(update_bib_files)
+          # update_bib_names[duplicated_basenames] <- paste0(names(update_bib_files[duplicated_basenames]), " - ", dirname(update_bib_files[duplicated_basenames]), "/")
+          update_bib_names <- paste0(basename(update_bib_files), " - ", dirname(update_bib_files), "/")
+          update_bib_names <- gsub("./", paste0(dirname(context$path), "/"), update_bib_names, fixed = TRUE)
+          names(update_bib_files) <- update_bib_names
+        # }
+
         selectizeInput(
           "update_bib"
           , "Add references to"
-          , choices = unique(basename(c(yaml_choices, getOption("citr.update_bib"))))
-          , selected = basename(getOption("citr.update_bib"))
-          , options = list(create = TRUE, sortField = "text")
+          , choices = update_bib_files
+          , selected = getOption("citr.update_bib")
+          , options = list(
+            create = TRUE
+            , sortField = "text"
+            , render = I(
+              '{
+    item: function(item, escape) {
+      var splittedLabel = escape(item.label).split(" - ");
+      if (splittedLabel.length > 1) {
+        return "<div>" + splittedLabel[0] + " <br><i style=\'color: #A9A9A9; font-size: 0.8em;\'>" + splittedLabel[1] + "</i></div>";
+      } else {
+        return "<div>" + splittedLabel[0] + "</div>";
+      }
+    },
+    option: function(item, escape) {
+      var splittedLabel = escape(item.label).split(" - ");
+      if (splittedLabel.length > 1) {
+        return "<div>" + splittedLabel[0] + " <br><i style=\'color: #A9A9A9; font-size: 0.8em;\'>" + splittedLabel[1] + "</i></div>";
+      } else {
+        return "<div>" + splittedLabel[0] + "</div>";
+      }
+    }
+  }'
+            )
+          )
         )
       }
     })
