@@ -216,7 +216,7 @@ insert_citation <- function(
             selectizeInput(
               inputId = "bib_encoding"
               , label = "Bibliography file encoding"
-              , choices = c("latin1", "UTF-8", "unkown")
+              , choices = c("latin1", "UTF-8", "unknown")
               , selected = getOption("citr.encoding")
               , multiple = FALSE
             )
@@ -799,6 +799,7 @@ make_hash <- function() {
 
 discard_cache <- function(x) {
   options(citr.bibliography_cache = NULL)
+  options(citr.citation_key_cache = NULL)
   x$reload_bib <- make_hash()
   x
 }
