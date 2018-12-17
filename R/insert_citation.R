@@ -485,7 +485,7 @@ insert_citation <- function(
             incProgress(1/4)
             citation_keys <- citation_keys[order(current_references)]
             incProgress(1/4)
-            names(citation_keys) <- stringi::stri_enc_tonative(current_references[order(current_references)])
+            names(citation_keys) <- current_references[order(current_references)]
             incProgress(1/4)
             options(citr.citation_key_cache = citation_keys)
             incProgress(1/4)
@@ -496,10 +496,13 @@ insert_citation <- function(
           citation_keys <- getOption("citr.citation_key_cache")
         }
 
+        citation_keys <- c("Search references" = "", citation_keys)
+        names(citation_keys) <- enc2native(citation_keys)
+
         updateSelectizeInput(
           session
           , "selected_key"
-          , choices = c("Search references" = "", citation_keys)
+          , choices = citation_keys
           , label = ""
         )
 
