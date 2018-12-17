@@ -497,7 +497,7 @@ insert_citation <- function(
         }
 
         citation_keys <- c("Search references" = "", citation_keys)
-        names(citation_keys) <- enc2native(citation_keys)
+        names(citation_keys) <- enc2native(names(citation_keys))
 
         updateSelectizeInput(
           session
