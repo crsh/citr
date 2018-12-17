@@ -39,7 +39,8 @@ tidy_bib_file <- function(
 
   manuscript_test <- prep_text(rmd)
 
-  reference_handles <- stringi::stri_extract_all(manuscript_test, regex = "@[^;\\s\\],]+")[[1]]
+  reference_handles <- unlist(regmatches(manuscript_test, gregexpr("@[^;\\s\\],]+", manuscript_test, useBytes = TRUE)))
+  # reference_handles <- stringi::stri_extract_all(manuscript_test, regex = "@[^;\\s\\],]+")[[1]]
   reference_handles <- gsub("@", "", unique(reference_handles), useBytes = TRUE)
 
   if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
