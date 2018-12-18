@@ -11,7 +11,7 @@
 #'    are imported from Zotero/Juris-M rather than from the Bib(La)TeX-file. The Bib(La)TeX-file
 #'    is then updated to include the inserted reference.
 #'
-#' @return If the bibliography contains exactly one match the formated citation is returned, otherwise
+#' @return If the bibliography contains exactly one match the formatted citation is returned, otherwise
 #'    returns \code{NULL}. \code{md_cite} returns an in-text citation (\code{"@foo2016"}), \code{md_cite}
 #'    returns an in-parenthesis citation (\code{"[@foo2016]"}).
 #'

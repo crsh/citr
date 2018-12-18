@@ -1,19 +1,15 @@
 ## Test environments
-* local OS X 10.11 install, R 3.3.1
-* local Ubuntu 14.04 install, R 3.3.1
-* Ubuntu 12.04 (old release, release, and devel; on travis-ci)
-* win-builder (devel and release)
+* local OS X 10.12.6 install, R 3.5.1
+* Fedora Linux, R-devel, clang, gfortran (r-hub)
+* Windows Server 2008 R2 SP1, R-devel, 32/64 bit (r-hub)
+* Ubuntu Linux 16.04 LTS, R-release, GCC (r-hub)
+* Windows Server 2008, R-release (win-builder)
+* Windows Server 2008, R-devel (win-builder)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs but one NOTE:
+There were no ERRORs, WARNINGs, or NOTEs.
 
-Maintainer: 'Frederik Aust <frederik.aust@uni-koeln.de>'
-
-License components with restrictions and base license permitting such:
-  MIT + file LICENSE
-File 'LICENSE':
-  YEAR: 2016
-  COPYRIGHT HOLDER: Frederik Aust
+r-hub CRAN check notes "Author field differs from that derived from Authors@R" due to the ORCID id auto-expansion to a URL.
 
 ## Downstream dependencies
 There are no downstream dependencies.

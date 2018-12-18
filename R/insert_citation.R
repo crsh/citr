@@ -17,7 +17,7 @@
 #'    are reloaded. To manually reload a bibliography at an unchanged location click the
 #'    action link.
 #'
-#' @return Inserts selected Markdown citation(s) at currenct location.
+#' @return Inserts selected Markdown citation(s) at current location.
 #'
 #' @examples
 #' \dontrun{

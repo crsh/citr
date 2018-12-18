@@ -105,7 +105,7 @@ omit:
 
 ![](tools/images/bbt_omit_abstract.png)
 
-Once, the above error has occured, it may be neccessary to restart the R
+Once, the above error has occurred, it may be necessary to restart the R
 session. Otherwise reading any other file may fail with `Error: lex
 fatal error: fatal flex scanner internal error--end of buffer missed`.
 

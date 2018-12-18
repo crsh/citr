@@ -8,7 +8,7 @@
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
 #'    RStudio addin, the global option is updated.
 #'
-#' @return If the bibliography contains exactly one match the formated citation is returned, otherwise
+#' @return If the bibliography contains exactly one match the formatted citation is returned, otherwise
 #'    returns \code{NULL}. \code{md_cite} returns an in-text citation (\code{"@foo2016"}), \code{md_cite}
 #'    returns an in-parenthesis citation (\code{"[@foo2016]"}).
 #'
