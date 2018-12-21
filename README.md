@@ -69,7 +69,7 @@ references.
 
 If you are using Zotero `citr` can access your reference database
 directly. For this to work, you need to install the [Better Bib(La)TeX
-extension](https://github.com/retorquere/zotero-better-bibtex/wiki).
+extension](https://retorquere.github.io/zotero-better-bibtex/).
 Once the extension is installed and your reference manager is running,
 `citr` can access all your references and keep your bibliography file
 updated by adding missing references.
