@@ -65,10 +65,10 @@ md_cite("foo 2016", bib_file = "references.bib")
 `md_cite()` searches the author, year, title, and journal fields of your
 references.
 
-### Better Bib(La)TeX integration
+### Better BibTeX integration
 
 If you are using Zotero `citr` can access your reference database
-directly. For this to work, you need to install the [Better Bib(La)TeX
+directly. For this to work, you need to install the [Better BibTeX
 extension](https://github.com/retorquere/zotero-better-bibtex/wiki).
 Once the extension is installed and your reference manager is running,
 `citr` can access all your references and keep your bibliography file
@@ -100,8 +100,7 @@ long Bib(La)TeX fields can cause these underlying functions to fail
 fatal error: input buffer overflow, can't enlarge buffer because scanner
 uses REJECT`). To avoid such problems, I strongly recommend to disable
 the export of potentially long metadata fields, such as abstract and
-notes. The Better Bib(La)TeX-plugin allows users to specify fields to
-omit:
+notes. The Better BibTeX-plugin allows users to specify fields to omit:
 
 ![](tools/images/bbt_omit_abstract.png)
 

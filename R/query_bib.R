@@ -9,7 +9,7 @@
 #'    \code{cache = FALSE} bibliography is re-imported on every function call.
 #' @param use_betterbiblatex Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.
 #' @param betterbiblatex_format Character. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
-#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+#'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
 #'    Zotero/Juris-M is running.
 #' @param exclude_betterbiblatex_library Character. A vector of Zotero/Juris-M library names not to query.
 #' @param encoding Character. Encoding of the Bib(La)TeX-file.
