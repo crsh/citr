@@ -37,10 +37,10 @@ tidy_bib_file <- function(
     stop("The R Markdown file contains no text.")
   }
 
-  manuscript_test <- prep_text(rmd)
+ rmd_text <- prep_text(rmd)
 
-  reference_handles <- unlist(regmatches(manuscript_test, gregexpr("@[^;\\s\\],]+", manuscript_test, useBytes = TRUE)))
-  # reference_handles <- stringi::stri_extract_all(manuscript_test, regex = "@[^;\\s\\],]+")[[1]]
+  reference_handles <- unlist(regmatches(rmd_text, gregexpr("@[^;\\s\\],]+", rmd_text, useBytes = TRUE, perl = TRUE)))
+  # reference_handles <- stringi::stri_extract_all(rmd_text, regex = "@[^;\\s\\],]+")[[1]]
   reference_handles <- gsub("@", "", unique(reference_handles), useBytes = TRUE)
 
   if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
