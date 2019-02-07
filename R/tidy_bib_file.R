@@ -67,7 +67,7 @@ prep_text <- function(text){
   text <- gsub("[\r\n]", " ", text)
 
   # don't include front yaml
-  text <- gsub("---.+?---", "", text, useBytes = TRUE)
+  # text <- gsub("---.+?---", "", text, useBytes = TRUE)
 
   # don't include text in code chunks: https://regex101.com/#python
   text <- gsub("```\\{.+?\\}.+?```", "", text, useBytes = TRUE)
@@ -76,13 +76,13 @@ prep_text <- function(text){
   text <- gsub("`r.+?`", "", text, useBytes = TRUE)
 
   # don't include HTML comments
-  text <- gsub("<!--.+?-->", "", text, useBytes = TRUE)
+  # text <- gsub("<!--.+?-->", "", text, useBytes = TRUE)
 
   # don't include inline markdown URLs
   text <- gsub("\\(http.+?\\)", "", text, useBytes = TRUE)
 
   # don't include images with captions
-  text <- gsub("!\\[.+?\\)", "", text, useBytes = TRUE)
+  # text <- gsub("!\\[.+?\\)", "", text, useBytes = TRUE)
 
   # don't include html tags
   text <- gsub("<.+?>|</.+?>", "", text)
