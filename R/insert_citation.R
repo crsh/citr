@@ -658,7 +658,7 @@ insert_citation <- function(
           helpText("YAML front matter missing or no bibliography files specified.")
         )
       } else {
-        update_bib_files <- c(yaml_bib_file, getOption("citr.update_bib"))
+        update_bib_files <- unique(c(yaml_choices, getOption("citr.update_bib")))
         # names(update_bib_files) <- basename(update_bib_files)
         # duplicated_basenames <- names(update_bib_files) %in% names(update_bib_files)[duplicated(names(update_bib_files))]
         # if(any(duplicated_basenames)) {
