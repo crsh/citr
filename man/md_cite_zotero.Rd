@@ -10,7 +10,7 @@ md_cite_zotero(in_paren = TRUE)
 \item{in_paren}{Logical. Determines if citation is in parentheses.}
 }
 \value{
-If the bibliography contains exactly one match the formated citation is returned, otherwise
+If the bibliography contains exactly one match the formatted citation is returned, otherwise
    returns \code{NULL}. \code{md_cite} returns an in-text citation (\code{"@foo2016"}), \code{md_cite}
    returns an in-parenthesis citation (\code{"[@foo2016]"}).
 }

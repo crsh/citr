@@ -5,7 +5,7 @@
 \title{Tidy bibliography file}
 \usage{
 tidy_bib_file(rmd_file, messy_bibliography, file = NULL,
-  encoding = getOption("encoding"))
+  encoding = getOption("citr.encoding"))
 }
 \arguments{
 \item{rmd_file}{Character. One or more paths to the R Markdown files that use the messy bibliography file.}

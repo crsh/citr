@@ -14,14 +14,14 @@ insert_citation(bib_file = getOption("citr.bibliography_path"),
 
 \item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.}
 
-\item{betterbiblatex_format}{Charcter. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
-Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+\item{betterbiblatex_format}{Character. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
 Zotero/Juris-M is running.}
 
 \item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
 }
 \value{
-Inserts selected Markdown citation(s) at currenct location.
+Inserts selected Markdown citation(s) at current location.
 }
 \description{
 Invoke RStudio add-in to insert Markdown citations

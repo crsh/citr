@@ -25,7 +25,7 @@ fields); Regex is supported.}
 \item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
 }
 \value{
-If the bibliography contains exactly one match the formated citation is returned, otherwise
+If the bibliography contains exactly one match the formatted citation is returned, otherwise
    returns \code{NULL}. \code{md_cite} returns an in-text citation (\code{"@foo2016"}), \code{md_cite}
    returns an in-parenthesis citation (\code{"[@foo2016]"}).
 }

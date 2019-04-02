@@ -22,8 +22,8 @@ fields); Regex is supported.}
 
 \item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.}
 
-\item{betterbiblatex_format}{Charcter. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
-Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better Bib(La)TeX} is installed and
+\item{betterbiblatex_format}{Character. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
 Zotero/Juris-M is running.}
 
 \item{exclude_betterbiblatex_library}{Character. A vector of Zotero/Juris-M library names not to query.}
