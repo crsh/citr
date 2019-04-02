@@ -1,8 +1,9 @@
 Package: citr
 Type: Package
 Title: 'RStudio' Add-in to Insert Markdown Citations
-Description: Functions and an 'RStudio' add-in that search a 'Bib(La)TeX'-file to create and
-  insert formatted Markdown citations into the current document.
+Description: Functions and an 'RStudio' add-in that search 'Bib(La)TeX'-files or
+  'Zotero' libraries (via the 'Better BibTeX' plugin) to insert formatted Markdown
+  citations into the current document.
 Version: 0.3.0
 Date: 2018-12-18
 Authors@R: c(

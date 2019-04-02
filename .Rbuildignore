@@ -7,3 +7,4 @@
 ^README_files$
 ^\.travis\.yml$
 ^cran-comments\.md$
+^.github$
