@@ -16,7 +16,7 @@ tidy_bib_file <- function(
   rmd_file
   , messy_bibliography
   , file = NULL
-  , encoding = getOption("encoding")
+  , encoding = getOption("citr.encoding")
 ) {
   assert_that(is.character(rmd_file))
   assert_that(is.string(messy_bibliography))
@@ -55,7 +55,7 @@ tidy_bib_file <- function(
 
   message("Removing ", length(complete_bibliography) - length(unique(necessary_bibliography)), " unneeded bibliography entries.")
 
-  RefManageR::WriteBib(unique(necessary_bibliography), file = file)
+  RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = getOption("citr.betterbiblatex_format") == "biblatex")
 }
 
 
@@ -90,8 +90,11 @@ prep_text <- function(text){
   # don't include percent signs because they trip up stringi
   text <- gsub("%", "", text)
 
-  #remove cross-references
+  # remove cross-references
   text <- gsub("\\\\@ref\\(.+?\\)", "", text, useBytes = TRUE)
+
+  # remove e-mail addresses (http://emailregex.com/)
+  text <- gsub("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}", "", text, useBytes = TRUE)
 
   text
 }
