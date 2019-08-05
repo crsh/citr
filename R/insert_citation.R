@@ -81,6 +81,7 @@ insert_citation <- function(
     yaml_bib_file <- get_bib_from_yaml(
       yaml_delimiters
       , context$contents
+      , rmd_path = dirname(context$path)
       , bib_file = NULL
     )
   }
@@ -109,18 +110,19 @@ insert_citation <- function(
     yaml_bib_file <- get_bib_from_yaml(
       parent_yaml_delimiters
       , parent_document
+      , rmd_path = parents_path[parents]
       , bib_file = yaml_bib_file
     )
   }
 
   if(!is.null(yaml_bib_file)) {
     relative_paths <- !grepl("^(\\/|~|\\w*:\\/+)", yaml_bib_file)
-    absolute_yaml_bib_file <- yaml_bib_file
-    absolute_yaml_bib_file[relative_paths] <- paste(
-      dirname(context$path)
-      , yaml_bib_file[relative_paths]
-      , sep = "/"
-    )
+    absolute_yaml_bib_file <- tools::file_path_as_absolute(yaml_bib_file)
+    # absolute_yaml_bib_file[relative_paths] <- paste(
+    #   dirname(context$path)
+    #   , yaml_bib_file[relative_paths]
+    #   , sep = "/"
+    # )
 
     # if(betterbiblatex && use_betterbiblatex) {
       yaml_choices <- absolute_yaml_bib_file
@@ -640,7 +642,7 @@ insert_citation <- function(
         } else {
           helpText(
             bib_message
-            , code(paste(yaml_bib_file, collapse = ", "))
+            , code(paste(gsub(dirname(context$path), ".", yaml_bib_file), collapse = ", "))
             , actionLink("discard_cache", "Reload files")
           )
         }
@@ -658,7 +660,7 @@ insert_citation <- function(
           helpText("YAML front matter missing or no bibliography files specified.")
         )
       } else {
-        update_bib_files <- unique(c(yaml_choices, getOption("citr.update_bib")))
+        update_bib_files <- unique(c(yaml_choices, gsub("./", paste0(dirname(context$path), "/"), getOption("citr.update_bib"), fixed = TRUE)))
         # names(update_bib_files) <- basename(update_bib_files)
         # duplicated_basenames <- names(update_bib_files) %in% names(update_bib_files)[duplicated(names(update_bib_files))]
         # if(any(duplicated_basenames)) {
@@ -779,7 +781,7 @@ error_handler <- function(x) {
 
 ## Let's hope this doesn't cause too much trouble; this is a lot more
 ## sofisticated in rmarkdown, but the functions are not exported.
-get_bib_from_yaml <- function(yaml_delimiters, file_contents, bib_file = NULL) {
+get_bib_from_yaml <- function(yaml_delimiters, file_contents, rmd_path, bib_file = NULL) {
   if(
     length(yaml_delimiters) >= 2 &&
     (yaml_delimiters[2] - yaml_delimiters[1] > 1) &&
@@ -789,7 +791,10 @@ get_bib_from_yaml <- function(yaml_delimiters, file_contents, bib_file = NULL) {
       file_contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)]
       , collapse = "\n"
     )
-    c(bib_file, yaml::yaml.load(yaml_front_matter)$bibliography)
+    absolute_bib_file <- tools::file_path_as_absolute(
+      file.path(rmd_path, yaml::yaml.load(yaml_front_matter)$bibliography)
+    )
+    c(bib_file, absolute_bib_file)
   } else {
     NULL
   }
