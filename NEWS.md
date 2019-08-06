@@ -1,7 +1,7 @@
-# citr 0.3.0.9000
+# citr 0.3.1
 
-- Improves tidy_bib_file()'s search for reference handles (reported by @Robinlovelace, #48, and @heinonmatti, #49)
-- Addin now correctly uses absolut rather than relative paths to update reference files
+- Improves `tidy_bib_file()`-search for reference handles (reported by @Robinlovelace, #48, and @heinonmatti, #49)
+- Addin now correctly uses absolute rather than relative paths to update reference files
 
 # citr 0.3.0
 
