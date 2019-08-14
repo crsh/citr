@@ -110,14 +110,14 @@ insert_citation <- function(
     yaml_bib_file <- get_bib_from_yaml(
       parent_yaml_delimiters
       , parent_document
-      , rmd_path = parents_path[parents]
+      , rmd_path = dirname(parents_path[parents])
       , bib_file = yaml_bib_file
     )
   }
 
   if(!is.null(yaml_bib_file)) {
     relative_paths <- !grepl("^(\\/|~|\\w*:\\/+)", yaml_bib_file)
-    absolute_yaml_bib_file <- tools::file_path_as_absolute(yaml_bib_file)
+    absolute_yaml_bib_file <- sapply(yaml_bib_file, tools::file_path_as_absolute)
     # absolute_yaml_bib_file[relative_paths] <- paste(
     #   dirname(context$path)
     #   , yaml_bib_file[relative_paths]
@@ -791,8 +791,9 @@ get_bib_from_yaml <- function(yaml_delimiters, file_contents, rmd_path, bib_file
       file_contents[(yaml_delimiters[1] + 1):(yaml_delimiters[2] - 1)]
       , collapse = "\n"
     )
-    absolute_bib_file <- tools::file_path_as_absolute(
+    absolute_bib_file <- sapply(
       file.path(rmd_path, yaml::yaml.load(yaml_front_matter)$bibliography)
+      , tools::file_path_as_absolute
     )
     c(bib_file, absolute_bib_file)
   } else {
