@@ -4,8 +4,8 @@ Title: 'RStudio' Add-in to Insert Markdown Citations
 Description: Functions and an 'RStudio' add-in that search 'Bib(La)TeX'-files or
   'Zotero' libraries (via the 'Better BibTeX' plugin) to insert formatted Markdown
   citations into the current document.
-Version: 0.3.1
-Date: 2019-08-05
+Version: 0.3.2
+Date: 2019-09-15
 Authors@R: c(
   person("Frederik", "Aust", email = "frederik.aust@uni-koeln.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4900-788X")),
   person("Yihui", "Xie", role = "ctb"),

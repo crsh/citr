@@ -1,3 +1,7 @@
+# citr 0.3.2
+
+- Fixed bug related to use of absolute file paths that caused errors finding the bibliography files (reported by @bblodfon and @neurotroph, #52)
+
 # citr 0.3.1
 
 - Improves `tidy_bib_file()`-search for reference handles (reported by @Robinlovelace, #48, and @heinonmatti, #49)
