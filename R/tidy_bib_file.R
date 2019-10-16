@@ -39,7 +39,8 @@ tidy_bib_file <- function(
 
  rmd_text <- prep_text(rmd)
 
-  reference_handles <- unlist(regmatches(rmd_text, gregexpr("@[^;\\s\\],]+", rmd_text, useBytes = TRUE, perl = TRUE)))
+  # reference_handles <- unlist(regmatches(rmd_text, gregexpr("@[^;,\\s\\]\\)]+", rmd_text, useBytes = TRUE, perl = TRUE)))
+  reference_handles <- unlist(regmatches(rmd_text, gregexpr("@[^\\]\\{\\}\\(\\)'=,\\s(---)((.|;)\\s)]+", rmd_text, useBytes = TRUE, perl = TRUE)))
   # reference_handles <- stringi::stri_extract_all(rmd_text, regex = "@[^;\\s\\],]+")[[1]]
   reference_handles <- gsub("@", "", unique(reference_handles), useBytes = TRUE)
 
@@ -55,7 +56,12 @@ tidy_bib_file <- function(
 
   message("Removing ", length(complete_bibliography) - length(unique(necessary_bibliography)), " unneeded bibliography entries.")
 
+  bib_options <- BibOptions()
+  BibOptions(check.entries = FALSE)
+
   RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = getOption("citr.betterbiblatex_format") == "biblatex")
+
+  BibOptions(bib_options)
 }
 
 
