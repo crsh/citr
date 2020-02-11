@@ -56,12 +56,12 @@ tidy_bib_file <- function(
 
   message("Removing ", length(complete_bibliography) - length(unique(necessary_bibliography)), " unneeded bibliography entries.")
 
-  bib_options <- BibOptions()
-  BibOptions(check.entries = FALSE)
+  bib_options <- RefManageR::BibOptions()
+  RefManageR::BibOptions(check.entries = FALSE)
 
   RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = getOption("citr.betterbiblatex_format") == "biblatex")
 
-  BibOptions(bib_options)
+  RefManageR::BibOptions(bib_options)
 }
 
 
