@@ -4,11 +4,15 @@
 \alias{load_betterbiblatex_bib}
 \title{Load bibliography from Zotero}
 \usage{
-load_betterbiblatex_bib(encoding, betterbiblatex_format = "bibtex",
-  exclude_betterbiblatex_library = NULL, increment_progress = FALSE)
+load_betterbiblatex_bib(
+  encoding,
+  betterbiblatex_format = "bibtex",
+  exclude_betterbiblatex_library = NULL,
+  increment_progress = FALSE
+)
 }
 \arguments{
-\item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
+\item{encoding}{Character. Encoding of the Bib(La)TeX-file. See the \code{\link{connection}}.}
 
 \item{betterbiblatex_format}{Character. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
 Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
@@ -16,11 +20,15 @@ Zotero/Juris-M is running.}
 
 \item{exclude_betterbiblatex_library}{Character. A vector of Zotero/Juris-M library names not to query.}
 
-\item{increment_progress}{logical switch which will use the shiny function \code{incProgress} when \code{TRUE}.
-\code{FALSE} by default.}
+\item{increment_progress}{logical switch which will use the shiny function
+\code{incProgress} when \code{TRUE}. \code{FALSE} by default.}
 }
 \description{
 Load bibliography from Zotero
+}
+\details{
+This function loads into RAM the bibliography stored in Zotero.
+May take a several seconds if you have many hundreds of references.
 }
 \examples{
 \dontrun{

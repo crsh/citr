@@ -4,8 +4,13 @@
 \alias{tidy_bib_file}
 \title{Tidy bibliography file}
 \usage{
-tidy_bib_file(rmd_file, messy_bibliography, file = NULL,
-  encoding = getOption("citr.encoding"))
+tidy_bib_file(
+  rmd_file,
+  messy_bibliography,
+  file = NULL,
+  encoding = getOption("citr.encoding"),
+  betterbiblatex_format = getOption("citr.betterbiblatex_format")
+)
 }
 \arguments{
 \item{rmd_file}{Character. One or more paths to the R Markdown files that use the messy bibliography file.}
@@ -14,7 +19,11 @@ tidy_bib_file(rmd_file, messy_bibliography, file = NULL,
 
 \item{file}{Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.}
 
-\item{encoding}{Character. The name of the encoding to be assumed. See the \code{\link{connection}}.}
+\item{encoding}{Character. Encoding of the Bib(La)TeX-file. See the \code{\link{connection}}.}
+
+\item{betterbiblatex_format}{Character. Bibliography format to export from Zotero/Juris-M. Can be either \code{"bibtex"} or \code{"biblatex"}. Ignored if \code{use_betterbiblatex = FALSE}.
+Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
+Zotero/Juris-M is running.}
 }
 \description{
 Removes duplicate and unneeded entries from a Bib(La)Tex-file.

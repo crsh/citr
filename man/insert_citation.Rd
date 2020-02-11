@@ -4,10 +4,12 @@
 \alias{insert_citation}
 \title{Invoke RStudio add-in to insert Markdown citations}
 \usage{
-insert_citation(bib_file = getOption("citr.bibliography_path"),
+insert_citation(
+  bib_file = getOption("citr.bibliography_path"),
   use_betterbiblatex = getOption("citr.use_betterbiblatex"),
   betterbiblatex_format = getOption("citr.betterbiblatex_format"),
-  encoding = getOption("citr.encoding"))
+  encoding = getOption("citr.encoding")
+)
 }
 \arguments{
 \item{bib_file}{Character. Path to Bib(La)TeX-file. See details.}
@@ -18,7 +20,7 @@ insert_citation(bib_file = getOption("citr.bibliography_path"),
 Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
 Zotero/Juris-M is running.}
 
-\item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
+\item{encoding}{Character. Encoding of the Bib(La)TeX-file. See the \code{\link{connection}}.}
 }
 \value{
 Inserts selected Markdown citation(s) at current location.

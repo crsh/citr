@@ -5,7 +5,7 @@
 #' @param rmd_file Character. One or more paths to the R Markdown files that use the messy bibliography file.
 #' @param messy_bibliography Character. Path to the messy bibliography file.
 #' @param file Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.
-#' @param encoding Character. The name of the encoding to be assumed. See the \code{\link{connection}}.
+#' @inheritParams query_bib
 #'
 #' @export
 #'
@@ -17,6 +17,7 @@ tidy_bib_file <- function(
   , messy_bibliography
   , file = NULL
   , encoding = getOption("citr.encoding")
+  , betterbiblatex_format = getOption("citr.betterbiblatex_format")
 ) {
   assert_that(is.character(rmd_file))
   assert_that(is.string(messy_bibliography))
@@ -27,6 +28,10 @@ tidy_bib_file <- function(
   }
   assert_that(is.string(encoding))
   assert_that(length(encoding) == 1)
+  assert_that(is.string(betterbiblatex_format))
+  if(!betterbiblatex_format %in% c("bibtex", "biblatex")) {
+    stop("Bibliography format not supported. Use either 'bibtex'  or 'biblatex'.")
+  }
 
   rmd <- c()
   for(i in seq_along(rmd_file)) {
@@ -59,7 +64,7 @@ tidy_bib_file <- function(
   bib_options <- RefManageR::BibOptions()
   RefManageR::BibOptions(check.entries = FALSE)
 
-  RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = getOption("citr.betterbiblatex_format") == "biblatex")
+  RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = betterbiblatex_format == "biblatex")
 
   RefManageR::BibOptions(bib_options)
 }

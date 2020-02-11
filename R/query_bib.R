@@ -12,7 +12,7 @@
 #'    Requires that the \href{https://github.com/retorquere/zotero-better-bibtex}{Better BibTeX} is installed and
 #'    Zotero/Juris-M is running.
 #' @param exclude_betterbiblatex_library Character. A vector of Zotero/Juris-M library names not to query.
-#' @param encoding Character. Encoding of the Bib(La)TeX-file.
+#' @param encoding Character. Encoding of the Bib(La)TeX-file. See the \code{\link{connection}}.
 #'
 #' @details The path to the BibTeX-file can be set in the global options and is set to
 #'    \code{references.bib} when the package is loaded. Once the path is changed in the
@@ -154,19 +154,19 @@ betterbiblatex_available <- function() {
 
 #' Load bibliography from Zotero
 #'
-#' @param increment_progress logical switch which will use the shiny function \code{incProgress} when \code{TRUE}.
-#' \code{FALSE} by default.
-#' @inheritParams query_bib
-#' @inheritParams tidy_bib_file
+#' @param increment_progress logical switch which will use the shiny function
+#'   \code{incProgress} when \code{TRUE}. \code{FALSE} by default.
 #' @inheritParams query_bib
 #'
-#' This function loads into RAM the bibliography stored in Zotero.
+#' @details This function loads into RAM the bibliography stored in Zotero.
 #' May take a several seconds if you have many hundreds of references.
 #'
 #' @export
+#'
 #' @examples \dontrun{
 #' b <- load_betterbiblatex_bib(encoding = "UTF-8")
 #' }
+
 load_betterbiblatex_bib <- function(
   encoding
   , betterbiblatex_format = "bibtex"

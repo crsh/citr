@@ -4,10 +4,14 @@
 \alias{md_cite}
 \title{Insert citation in Markdown format}
 \usage{
-md_cite(x, in_paren = TRUE,
-  bib_file = getOption("citr.bibliography_path"), cache = TRUE,
+md_cite(
+  x,
+  in_paren = TRUE,
+  bib_file = getOption("citr.bibliography_path"),
+  cache = TRUE,
   use_betterbiblatex = getOption("citr.use_betterbiblatex"),
-  encoding = getOption("citr.encoding"))
+  encoding = getOption("citr.encoding")
+)
 }
 \arguments{
 \item{x}{Character. Search terms used to filter bibliography (by author, year, title, and journal
@@ -22,7 +26,7 @@ fields); Regex is supported.}
 
 \item{use_betterbiblatex}{Logical. If \code{use_betterbiblatex = TRUE} references are imported from Zotero/Juris-M.}
 
-\item{encoding}{Character. Encoding of the Bib(La)TeX-file.}
+\item{encoding}{Character. Encoding of the Bib(La)TeX-file. See the \code{\link{connection}}.}
 }
 \value{
 If the bibliography contains exactly one match the formatted citation is returned, otherwise
