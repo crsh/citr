@@ -795,7 +795,7 @@ get_bib_from_yaml <- function(yaml_delimiters, file_contents, rmd_path, bib_file
       file.path(rmd_path, yaml::yaml.load(yaml_front_matter)$bibliography)
       , tools::file_path_as_absolute
     )
-    c(bib_file, absolute_bib_file)
+    unique(c(bib_file, absolute_bib_file))
   } else {
     NULL
   }
