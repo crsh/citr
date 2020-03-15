@@ -104,7 +104,7 @@ insert_citation <- function(
       stop("More than one parent document found. See getOption('citr.parent_documents').")
     }
 
-    parent_document <- readLines(parents_path[parents], warn = FALSE)
+    parent_document <- readLines(parents_path[parents], warn = FALSE, encoding = getOption("citr.encoding"))
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     yaml_bib_file <- get_bib_from_yaml(
