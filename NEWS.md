@@ -1,3 +1,9 @@
+# citr 0.3.3
+
+- Prevented from duplicated file names which resulted in duplicated bibliography entries in the add-in  (@GegznaV, #67, #68)
+- Argument `encoding = getOption("citr.encoding")` is passed to `readLines()` in `insert_citation()` (@GegznaV, #68)
+
+
 # citr 0.3.2
 
 - Fixed bug related to use of absolute file paths that caused errors finding the bibliography files (reported by @bblodfon and @neurotroph, #52)
