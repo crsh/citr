@@ -104,7 +104,7 @@ insert_citation <- function(
       stop("More than one parent document found. See getOption('citr.parent_documents').")
     }
 
-    parent_document <- readLines(parents_path[parents], warn = FALSE)
+    parent_document <- readLines(parents_path[parents], warn = FALSE, encoding = getOption("citr.encoding"))
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     yaml_bib_file <- get_bib_from_yaml(
@@ -795,7 +795,7 @@ get_bib_from_yaml <- function(yaml_delimiters, file_contents, rmd_path, bib_file
       file.path(rmd_path, yaml::yaml.load(yaml_front_matter)$bibliography)
       , tools::file_path_as_absolute
     )
-    c(bib_file, absolute_bib_file)
+    unique(c(bib_file, absolute_bib_file))
   } else {
     NULL
   }
