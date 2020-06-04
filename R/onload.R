@@ -6,7 +6,7 @@
     , citr.citation_key_cache = NULL
     , citr.use_betterbiblatex = FALSE
     , citr.exclude_betterbiblatex_library = NULL
-    , citr.betterbiblatex_format = "bibtex"
+    , citr.betterbiblatex_format = "biblatex"
     , citr.bib_file_last_modified = Sys.time()
     , citr.bib_file_cache = NULL
     , citr.update_bib = "./references.bib"
