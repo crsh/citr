@@ -49,12 +49,14 @@ insert_citation <- function(
     warning("Argument 'use_betterbiblatex' is deprecated; set the global option 'citr.betterbiblatex_format' instead.", call. = FALSE)
   }
 
-  if(rstudioapi::isAvailable("0.99.1111")) {
+  context <- NULL
+  if(rstudioapi::hasFun("getSourceEditorContext")) {
     context <- tryCatch(rstudioapi::getSourceEditorContext(), error = function(e) NULL)
   }
-  if((exists("context") && is.null(context)) || rstudioapi::isAvailable("0.99.796")) {
+  else if(rstudioapi::hasFun("getActiveDocumentContext")) {
     context <- rstudioapi::getActiveDocumentContext()
-  } else stop(
+  }
+  if (is.null(context)) stop(
     "The use of this addin requires RStudio 0.99.796 or newer (your version is "
     , rstudioapi::versionInfo()$version
     , ")."
