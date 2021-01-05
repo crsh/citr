@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' tidy_bib_file(rmd_file = c("introduction.Rmd", "methods.Rmd"), messy_bibliography = "references.bib", file = "tidy_references.bib")
+#' \dontrun{tidy_bib_file(rmd_file = c("introduction.Rmd", "methods.Rmd"), messy_bibliography = "references.bib", file = "tidy_references.bib")}
 
 tidy_bib_file <- function(
   rmd_file
