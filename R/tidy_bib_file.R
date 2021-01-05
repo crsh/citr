@@ -3,7 +3,7 @@
 #' Removes duplicate and unneeded entries from a Bib(La)Tex-file.
 #'
 #' @param rmd_file Character. One or more paths to the R Markdown files that use the messy bibliography file.
-#' @param messy_bibliography Character. One path or a list of paths to the messy bibliography file(s).
+#' @param messy_bibliography Character. One path or a vector of paths to the messy bibliography file(s).
 #' @param file Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.
 #' @inheritParams query_bib
 #'
