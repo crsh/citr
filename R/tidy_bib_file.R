@@ -2,7 +2,7 @@
 #'
 #' Removes duplicate and unneeded entries from a Bib(La)Tex-file.
 #'
-#' @param rmd_file Character. One or more paths to the R Markdown files that use the messy bibliography file.
+#' @param rmd_file Character. One path or a vector of paths to the R Markdown files that use the messy bibliography file.
 #' @param messy_bibliography Character. One path or a vector of paths to the messy bibliography file(s).
 #' @param file Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.
 #' @inheritParams query_bib
@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' NULL
+#' \dontrun{tidy_bib_file(rmd_file = c("introduction.Rmd", "methods.Rmd"), messy_bibliography = "references.bib", file = "tidy_references.bib")}
 
 tidy_bib_file <- function(
   rmd_file
@@ -35,7 +35,7 @@ tidy_bib_file <- function(
 
   rmd <- c()
   for(i in seq_along(rmd_file)) {
-    rmd <- paste(c(rmd, readLines(rmd_file, encoding = encoding, warn = FALSE)), collapse = " ")
+    rmd <- paste(c(rmd, readLines(rmd_file[i], encoding = encoding, warn = FALSE)), collapse = " ")
   }
 
   if(nchar(rmd) == 0){
