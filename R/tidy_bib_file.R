@@ -55,7 +55,7 @@ tidy_bib_file <- function(
   for(i in seq_along(messy_bibliography)) {
     complete_bibliography <- append(complete_bibliography, RefManageR::ReadBib(messy_bibliography[i], check = FALSE, .Encoding = encoding))
   }
-  
+
   necessary_bibliography <- complete_bibliography[names(complete_bibliography) %in% reference_handles]
 
   if(length(necessary_bibliography) == 0) stop("Found none of the ", length(reference_handles), " necessary references in the look-up bibliography.")
@@ -66,10 +66,9 @@ tidy_bib_file <- function(
 
   bib_options <- RefManageR::BibOptions()
   RefManageR::BibOptions(check.entries = FALSE)
+  on.exit(RefManageR::BibOptions(bib_options))
 
   RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = betterbiblatex_format == "biblatex")
-
-  RefManageR::BibOptions(bib_options)
 }
 
 
