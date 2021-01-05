@@ -3,7 +3,7 @@
 #' Removes duplicate and unneeded entries from a Bib(La)Tex-file.
 #'
 #' @param rmd_file Character. One path or a vector of paths to the R Markdown files that use the messy bibliography file.
-#' @param messy_bibliography Character. Path to the messy bibliography file.
+#' @param messy_bibliography Character. One path or a vector of paths to the messy bibliography file(s).
 #' @param file Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.
 #' @inheritParams query_bib
 #'
@@ -20,7 +20,7 @@ tidy_bib_file <- function(
   , betterbiblatex_format = getOption("citr.betterbiblatex_format")
 ) {
   assert_that(is.character(rmd_file))
-  assert_that(is.string(messy_bibliography))
+  assert_that(is.character(messy_bibliography))
   if(!is.null(file)) {
     assert_that(is.string(file))
   } else {
@@ -51,8 +51,11 @@ tidy_bib_file <- function(
 
   if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
 
-  complete_bibliography <- RefManageR::ReadBib(messy_bibliography, check = FALSE, .Encoding = encoding)
-
+  complete_bibliography <- c()
+  for(i in seq_along(messy_bibliography)) {
+    complete_bibliography <- append(complete_bibliography, RefManageR::ReadBib(messy_bibliography[i], check = FALSE, .Encoding = encoding))
+  }
+  
   necessary_bibliography <- complete_bibliography[names(complete_bibliography) %in% reference_handles]
 
   if(length(necessary_bibliography) == 0) stop("Found none of the ", length(reference_handles), " necessary references in the look-up bibliography.")
