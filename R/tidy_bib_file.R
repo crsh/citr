@@ -2,15 +2,15 @@
 #'
 #' Removes duplicate and unneeded entries from a Bib(La)Tex-file.
 #'
-#' @param rmd_file Character. One or more paths to the R Markdown files that use the messy bibliography file.
-#' @param messy_bibliography Character. Path to the messy bibliography file.
+#' @param rmd_file Character. One path or a vector of paths to the R Markdown files that use the messy bibliography file.
+#' @param messy_bibliography Character. One path or a vector of paths to the messy bibliography file(s).
 #' @param file Character. Path and name for the to-be-created tidy bibliography. If \code{NULL} the messy bibliography is replaced.
 #' @inheritParams query_bib
 #'
 #' @export
 #'
 #' @examples
-#' NULL
+#' \dontrun{tidy_bib_file(rmd_file = c("introduction.Rmd", "methods.Rmd"), messy_bibliography = "references.bib", file = "tidy_references.bib")}
 
 tidy_bib_file <- function(
   rmd_file
@@ -20,7 +20,7 @@ tidy_bib_file <- function(
   , betterbiblatex_format = getOption("citr.betterbiblatex_format")
 ) {
   assert_that(is.character(rmd_file))
-  assert_that(is.string(messy_bibliography))
+  assert_that(is.character(messy_bibliography))
   if(!is.null(file)) {
     assert_that(is.string(file))
   } else {
@@ -35,7 +35,7 @@ tidy_bib_file <- function(
 
   rmd <- c()
   for(i in seq_along(rmd_file)) {
-    rmd <- paste(c(rmd, readLines(rmd_file, encoding = encoding, warn = FALSE)), collapse = " ")
+    rmd <- paste(c(rmd, readLines(rmd_file[i], encoding = encoding, warn = FALSE)), collapse = " ")
   }
 
   if(nchar(rmd) == 0){
@@ -51,7 +51,10 @@ tidy_bib_file <- function(
 
   if(length(reference_handles) == 0) stop("Found no references in ", rmd_file)
 
-  complete_bibliography <- RefManageR::ReadBib(messy_bibliography, check = FALSE, .Encoding = encoding)
+  complete_bibliography <- c()
+  for(i in seq_along(messy_bibliography)) {
+    complete_bibliography <- append(complete_bibliography, RefManageR::ReadBib(messy_bibliography[i], check = FALSE, .Encoding = encoding))
+  }
 
   necessary_bibliography <- complete_bibliography[names(complete_bibliography) %in% reference_handles]
 
@@ -63,10 +66,9 @@ tidy_bib_file <- function(
 
   bib_options <- RefManageR::BibOptions()
   RefManageR::BibOptions(check.entries = FALSE)
+  on.exit(RefManageR::BibOptions(bib_options))
 
   RefManageR::WriteBib(unique(necessary_bibliography), file = file, useBytes = TRUE, biblatex = betterbiblatex_format == "biblatex")
-
-  RefManageR::BibOptions(bib_options)
 }
 
 

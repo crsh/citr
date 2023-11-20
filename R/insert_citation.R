@@ -49,12 +49,14 @@ insert_citation <- function(
     warning("Argument 'use_betterbiblatex' is deprecated; set the global option 'citr.betterbiblatex_format' instead.", call. = FALSE)
   }
 
-  if(rstudioapi::isAvailable("0.99.1111")) {
+  context <- NULL
+  if(rstudioapi::hasFun("getSourceEditorContext")) {
     context <- tryCatch(rstudioapi::getSourceEditorContext(), error = function(e) NULL)
   }
-  if((exists("context") && is.null(context)) || rstudioapi::isAvailable("0.99.796")) {
+  else if(rstudioapi::hasFun("getActiveDocumentContext")) {
     context <- rstudioapi::getActiveDocumentContext()
-  } else stop(
+  }
+  if (is.null(context)) stop(
     "The use of this addin requires RStudio 0.99.796 or newer (your version is "
     , rstudioapi::versionInfo()$version
     , ")."
@@ -104,7 +106,7 @@ insert_citation <- function(
       stop("More than one parent document found. See getOption('citr.parent_documents').")
     }
 
-    parent_document <- readLines(parents_path[parents], warn = FALSE)
+    parent_document <- readLines(parents_path[parents], warn = FALSE, encoding = "UTF-8")
     parent_yaml_delimiters <- grep("^(---|\\.\\.\\.)\\s*$", parent_document)
 
     yaml_bib_file <- get_bib_from_yaml(
@@ -795,7 +797,7 @@ get_bib_from_yaml <- function(yaml_delimiters, file_contents, rmd_path, bib_file
       file.path(rmd_path, yaml::yaml.load(yaml_front_matter)$bibliography)
       , tools::file_path_as_absolute
     )
-    c(bib_file, absolute_bib_file)
+    unique(c(bib_file, absolute_bib_file))
   } else {
     NULL
   }
